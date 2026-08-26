@@ -857,8 +857,6 @@
   }
 
   // ui/draw/security.js
-  var anchorCache = null;
-  var lastCacheTime = 0;
   function renderGuardStationsHub(lang) {
     const hub = document.getElementById("guard-stations-hub");
     if (!hub || !window.game || !window.game.state || !Array.isArray(window.game.state.guards)) return;
@@ -903,68 +901,92 @@
       hub.innerHTML = guardsHtml;
     }
   }
-  function getCourierPos(segmentPosition, isMovingToVault = false, lastTellerIdx = -1, guardId = 0) {
-    const now = Date.now();
+  function getTellerAnchorPos(floorMap, tellerIndex) {
+    const mapRect = floorMap.getBoundingClientRect();
+    const tellerNode = document.getElementById(`teller-node-${tellerIndex}`) || document.querySelectorAll(".teller-counter")[tellerIndex];
+    if (tellerNode) {
+      const rect = tellerNode.getBoundingClientRect();
+      return {
+        x: rect.left - mapRect.left + rect.width / 2,
+        y: rect.top - mapRect.top + rect.height * 0.65
+        // Natural collection point right at counter desk
+      };
+    }
+    const tellersZone = document.getElementById("tellers-zone");
+    if (tellersZone) {
+      const zRect = tellersZone.getBoundingClientRect();
+      return {
+        x: zRect.left - mapRect.left + zRect.width / 2,
+        y: zRect.top - mapRect.top + 60
+      };
+    }
+    return { x: 150, y: 300 };
+  }
+  function getStationSlotPos(floorMap, guardId) {
+    const mapRect = floorMap.getBoundingClientRect();
+    const slotEl = document.getElementById(`guard-slot-${guardId}`) || document.getElementById(`guard-bay-${guardId}`);
+    if (slotEl) {
+      const rect = slotEl.getBoundingClientRect();
+      return {
+        x: rect.left - mapRect.left + rect.width / 2,
+        y: rect.top - mapRect.top + rect.height / 2
+      };
+    }
+    return { x: 50 + guardId * 100, y: 150 };
+  }
+  function getCourierPos(gData) {
     const floorMap = document.getElementById("floor-map");
     if (!floorMap) return { x: 0, y: 0 };
-    if (!anchorCache || now - lastCacheTime > 2e3) {
-      const mapRect2 = floorMap.getBoundingClientRect();
-      const points2 = [];
-      const fallback = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8];
-      const tellerEls = document.querySelectorAll(".teller-counter");
-      tellerEls.forEach((el, idx) => {
-        const rect = el.getBoundingClientRect();
-        points2.push({
-          val: fallback[idx] || 0.9,
-          x: rect.left - mapRect2.left + rect.width / 2,
-          y: rect.top - mapRect2.top + rect.height / 2 + 40
-        });
-      });
-      points2.sort((a, b) => a.val - b.val);
-      anchorCache = points2;
-      lastCacheTime = now;
+    const stationPos = getStationSlotPos(floorMap, gData.id);
+    if (!gData.state || gData.state === "idle" || gData.state === "depositing") {
+      return stationPos;
     }
-    const mapRect = floorMap.getBoundingClientRect();
-    let slotEl = document.getElementById(`guard-slot-${guardId}`) || document.getElementById(`guard-bay-${guardId}`);
-    if (!slotEl || slotEl.offsetParent === null) {
-      slotEl = document.getElementById("guard-stations-hub") || document.getElementById("vault-graphic");
-    }
-    const slotRect = slotEl ? slotEl.getBoundingClientRect() : { left: 0, top: 0, width: 0, height: 0 };
-    const dynamicStation = {
-      val: 0,
-      x: slotRect.left - mapRect.left + slotRect.width / 2,
-      y: slotRect.top - mapRect.top + slotRect.height / 2
-    };
-    if (!anchorCache || anchorCache.length === 0) return { x: dynamicStation.x, y: dynamicStation.y };
-    const points = [dynamicStation, ...anchorCache];
-    if (isMovingToVault && lastTellerIdx >= 0 && points.length > 1) {
-      const station = points[0];
-      const startPoint = points[lastTellerIdx + 1] || points[points.length - 1];
-      const totalDist = startPoint.val - station.val;
+    if (gData.state.startsWith("moving_to_teller_")) {
+      const targetTi = parseInt(gData.state.slice("moving_to_teller_".length), 10);
+      const targetPos = getTellerAnchorPos(floorMap, targetTi);
+      let startPos = stationPos;
+      const lastTi = gData.lastCollectedTellerIndex;
+      if (typeof lastTi === "number" && lastTi >= 0 && lastTi !== targetTi) {
+        startPos = getTellerAnchorPos(floorMap, lastTi);
+      }
+      const targetAnchor = window.GAME_CONFIG && window.GAME_CONFIG.GUARD_TELLER_ANCHORS ? window.GAME_CONFIG.GUARD_TELLER_ANCHORS[targetTi] || 0.1 * (targetTi + 1) : 0.1 * (targetTi + 1);
+      const startAnchor = typeof lastTi === "number" && lastTi >= 0 ? window.GAME_CONFIG && window.GAME_CONFIG.GUARD_TELLER_ANCHORS ? window.GAME_CONFIG.GUARD_TELLER_ANCHORS[lastTi] : 0.1 * (lastTi + 1) : 0;
+      const totalDist = Math.abs(targetAnchor - startAnchor);
       let t = 0;
       if (totalDist > 0) {
-        t = (startPoint.val - segmentPosition) / totalDist;
+        t = Math.abs(gData.position - startAnchor) / totalDist;
+      } else {
+        t = 1;
       }
       t = Math.max(0, Math.min(1, t));
       return {
-        x: startPoint.x + t * (station.x - startPoint.x),
-        y: startPoint.y + t * (station.y - startPoint.y)
+        x: startPos.x + t * (targetPos.x - startPos.x),
+        y: startPos.y + t * (targetPos.y - startPos.y)
       };
     }
-    if (segmentPosition <= points[0].val) return { x: points[0].x, y: points[0].y };
-    if (segmentPosition >= points[points.length - 1].val) return { x: points[points.length - 1].x, y: points[points.length - 1].y };
-    for (let i = 0; i < points.length - 1; i++) {
-      if (segmentPosition >= points[i].val && segmentPosition <= points[i + 1].val) {
-        const p1 = points[i];
-        const p2 = points[i + 1];
-        let t = (segmentPosition - p1.val) / (p2.val - p1.val);
-        return {
-          x: p1.x + t * (p2.x - p1.x),
-          y: p1.y + t * (p2.y - p1.y)
-        };
-      }
+    if (gData.state.startsWith("collecting_from_teller_")) {
+      const ti = parseInt(gData.state.slice("collecting_from_teller_".length), 10);
+      return getTellerAnchorPos(floorMap, ti);
     }
-    return { x: dynamicStation.x, y: dynamicStation.y };
+    if (gData.state === "moving_to_vault") {
+      const lastTi = typeof gData.lastCollectedTellerIndex === "number" && gData.lastCollectedTellerIndex >= 0 ? gData.lastCollectedTellerIndex : 0;
+      const startPos = getTellerAnchorPos(floorMap, lastTi);
+      const startAnchor = window.GAME_CONFIG && window.GAME_CONFIG.GUARD_TELLER_ANCHORS ? window.GAME_CONFIG.GUARD_TELLER_ANCHORS[lastTi] || 0.1 * (lastTi + 1) : 0.1;
+      const targetAnchor = 0;
+      const totalDist = Math.abs(startAnchor - targetAnchor);
+      let t = 0;
+      if (totalDist > 0) {
+        t = Math.abs(startAnchor - gData.position) / totalDist;
+      } else {
+        t = 1;
+      }
+      t = Math.max(0, Math.min(1, t));
+      return {
+        x: startPos.x + t * (stationPos.x - startPos.x),
+        y: startPos.y + t * (stationPos.y - startPos.y)
+      };
+    }
+    return stationPos;
   }
   function updateGuardsDisplay(lang) {
     renderGuardStationsHub(lang);
@@ -980,7 +1002,6 @@
           floorMap.removeChild(node);
         }
       });
-      const mapRect = floorMap.getBoundingClientRect();
       unlockedGuards.forEach((g) => {
         const gData = game.getGuardRenderData(g.id);
         if (!gData) return;
@@ -1003,26 +1024,10 @@
         const isMovingToTeller = gData.state && gData.state.startsWith("moving_to_teller_");
         const isCollecting = gData.state && gData.state.startsWith("collecting_from_teller_");
         const isMovingToVault = gData.state === "moving_to_vault";
-        const isIdle = !gData.state || gData.state === "idle";
-        let posX, posY;
-        if (isIdle) {
-          const slotEl = document.getElementById(`guard-slot-${gData.id}`) || document.getElementById(`guard-bay-${gData.id}`);
-          if (slotEl) {
-            const slotRect = slotEl.getBoundingClientRect();
-            posX = slotRect.left - mapRect.left + slotRect.width / 2;
-            posY = slotRect.top - mapRect.top + slotRect.height / 2;
-          } else {
-            const pos = getCourierPos(0, false, -1, gData.id);
-            posX = pos.x;
-            posY = pos.y;
-          }
-        } else {
-          const pos = getCourierPos(gData.position, isMovingToVault, gData.lastCollectedTellerIndex, gData.id);
-          posX = pos.x;
-          posY = pos.y;
-        }
-        runner.style.left = `${posX}px`;
-        runner.style.top = `${posY}px`;
+        const isIdle = !gData.state || gData.state === "idle" || gData.state === "depositing";
+        const pos = getCourierPos(gData);
+        runner.style.left = `${pos.x}px`;
+        runner.style.top = `${pos.y}px`;
         runner.style.transform = `translate(-50%, -50%)`;
         runner.className = "guard-runner";
         runner.classList.add(`state-${gData.state || "idle"}`);
