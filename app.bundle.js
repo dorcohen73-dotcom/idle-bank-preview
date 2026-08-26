@@ -877,11 +877,9 @@
                     <div class="guard-bay-content">
                         <div class="guard-bay-name-row">
                             <span class="guard-bay-name">${t.guardLabel || "\u05D1\u05DC\u05D3\u05E8"} ${g.id + 1}</span>
-                        </div>
-                        <div class="guard-bay-bottom-row">
-                            <span class="guard-bay-status">${statusText}</span>
                             <span class="guard-bay-lvl-pill">${t.levelLabel || "\u05E8\u05DE\u05D4"} ${g.level || 1}</span>
                         </div>
+                        <div class="guard-bay-status">${statusText}</div>
                     </div>
                 </div>
             `;
@@ -895,9 +893,7 @@
                         <div class="guard-bay-name-row">
                             <span class="guard-bay-name">${t.guardLabel || "\u05D1\u05DC\u05D3\u05E8"} ${g.id + 1}</span>
                         </div>
-                        <div class="guard-bay-bottom-row">
-                            <span class="guard-bay-status locked">${t.guardLockedLabel || "\u05E0\u05E2\u05D5\u05DC"} (${formatMoney2(cost)})</span>
-                        </div>
+                        <div class="guard-bay-status locked">${t.guardLockedLabel || "\u05E0\u05E2\u05D5\u05DC"} (${formatMoney2(cost)})</div>
                     </div>
                 </div>
             `;
@@ -928,7 +924,6 @@
       anchorCache = points2;
       lastCacheTime = now;
     }
-    if (!anchorCache || anchorCache.length === 0) return { x: 0, y: 0 };
     const mapRect = floorMap.getBoundingClientRect();
     let slotEl = document.getElementById(`guard-slot-${guardId}`) || document.getElementById(`guard-bay-${guardId}`);
     if (!slotEl || slotEl.offsetParent === null) {
@@ -940,6 +935,7 @@
       x: slotRect.left - mapRect.left + slotRect.width / 2,
       y: slotRect.top - mapRect.top + slotRect.height / 2
     };
+    if (!anchorCache || anchorCache.length === 0) return { x: dynamicStation.x, y: dynamicStation.y };
     const points = [dynamicStation, ...anchorCache];
     if (isMovingToVault && lastTellerIdx >= 0 && points.length > 1) {
       const station = points[0];
@@ -968,7 +964,7 @@
         };
       }
     }
-    return { x: 0, y: 0 };
+    return { x: dynamicStation.x, y: dynamicStation.y };
   }
   function updateGuardsDisplay(lang) {
     renderGuardStationsHub(lang);
@@ -984,6 +980,7 @@
           floorMap.removeChild(node);
         }
       });
+      const mapRect = floorMap.getBoundingClientRect();
       unlockedGuards.forEach((g) => {
         const gData = game.getGuardRenderData(g.id);
         if (!gData) return;
@@ -1003,16 +1000,32 @@
           runner.appendChild(loadEl2);
           floorMap.appendChild(runner);
         }
-        const isMovingToTeller = gData.state.startsWith("moving_to_teller_");
-        const isCollecting = gData.state.startsWith("collecting_from_teller_");
+        const isMovingToTeller = gData.state && gData.state.startsWith("moving_to_teller_");
+        const isCollecting = gData.state && gData.state.startsWith("collecting_from_teller_");
         const isMovingToVault = gData.state === "moving_to_vault";
-        const isIdle = gData.state === "idle";
-        const pos = getCourierPos(gData.position, isMovingToVault, gData.lastCollectedTellerIndex, gData.id);
-        runner.style.left = `${pos.x}px`;
-        runner.style.top = `${pos.y}px`;
+        const isIdle = !gData.state || gData.state === "idle";
+        let posX, posY;
+        if (isIdle) {
+          const slotEl = document.getElementById(`guard-slot-${gData.id}`) || document.getElementById(`guard-bay-${gData.id}`);
+          if (slotEl) {
+            const slotRect = slotEl.getBoundingClientRect();
+            posX = slotRect.left - mapRect.left + slotRect.width / 2;
+            posY = slotRect.top - mapRect.top + slotRect.height / 2;
+          } else {
+            const pos = getCourierPos(0, false, -1, gData.id);
+            posX = pos.x;
+            posY = pos.y;
+          }
+        } else {
+          const pos = getCourierPos(gData.position, isMovingToVault, gData.lastCollectedTellerIndex, gData.id);
+          posX = pos.x;
+          posY = pos.y;
+        }
+        runner.style.left = `${posX}px`;
+        runner.style.top = `${posY}px`;
         runner.style.transform = `translate(-50%, -50%)`;
         runner.className = "guard-runner";
-        runner.classList.add(`state-${gData.state}`);
+        runner.classList.add(`state-${gData.state || "idle"}`);
         if (isMovingToTeller) runner.classList.add("state-moving_to_tellers");
         if (isCollecting) runner.classList.add("state-collecting");
         if (isIdle) runner.classList.add("state-idle-at-station");
