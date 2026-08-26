@@ -921,9 +921,8 @@
                     <div class="guard-bay-content">
                         <div class="guard-bay-name-row">
                             <span class="guard-bay-name">${t.guardLabel || "\u05D1\u05DC\u05D3\u05E8"} ${g.id + 1}</span>
-                            <span class="guard-bay-lock-tag">${t.guardLockedLabel || "\u05E0\u05E2\u05D5\u05DC"}</span>
                         </div>
-                        <div class="guard-bay-price-pill">\u{1F4B0} ${formatMoney2(cost)}</div>
+                        <div class="guard-bay-status locked">${t.guardLockedLabel || "\u05E0\u05E2\u05D5\u05DC"}</div>
                     </div>
                 </div>
             `;
