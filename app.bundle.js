@@ -6874,6 +6874,12 @@ ${stack}` : String(message);
           if (typeof window.renderDepartmentsTab === "function") window.renderDepartmentsTab();
           if (typeof window.renderMissionsTab === "function") window.renderMissionsTab();
           if (typeof window.renderBranchesTab === "function") window.renderBranchesTab();
+          if (window.Capacitor) {
+            document.documentElement.classList.add("is-capacitor");
+            if (typeof window.Capacitor.getPlatform === "function" && window.Capacitor.getPlatform() === "android") {
+              document.documentElement.classList.add("is-android");
+            }
+          }
           if (window.Capacitor && window.Capacitor.Plugins) {
             if (window.Capacitor.Plugins.SplashScreen) {
               window.Capacitor.Plugins.SplashScreen.hide();

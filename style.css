@@ -6876,7 +6876,7 @@ header, .control-panel, .bank-floor {
   .bottom-nav {
     display: flex !important;
     position: fixed !important;
-    bottom: max(10px + env(safe-area-inset-bottom, 0px), 26px) !important;
+    bottom: max(10px + env(safe-area-inset-bottom, 0px), 12px) !important;
     left: 10px !important;
     right: 10px !important;
     width: calc(100% - 20px) !important;
