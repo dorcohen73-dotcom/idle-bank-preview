@@ -1217,6 +1217,128 @@ header {
   pointer-events: none;
 }
 
+/* Guard Stations Hub (Dedicated Stations Row) */
+.guard-stations-hub {
+  display: flex;
+  flex-direction: row;
+  gap: 0.35rem;
+  width: 100%;
+  margin: 0.25rem 0 0.45rem 0;
+  padding: 0.3rem 0.4rem;
+  background: linear-gradient(135deg, rgba(20, 28, 48, 0.95), rgba(10, 15, 29, 0.98));
+  border: 1.5px solid rgba(223, 171, 41, 0.35);
+  border-radius: 12px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(223, 171, 41, 0.25);
+  z-index: 5;
+  position: relative;
+}
+
+.guard-station-bay {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.2rem 0.35rem;
+  border-radius: 8px;
+  transition: all 0.25s ease;
+  min-width: 0;
+}
+.guard-station-bay.active {
+  background: linear-gradient(145deg, rgba(30, 41, 59, 0.92), rgba(15, 23, 42, 0.98));
+  border: 1.5px solid #dfab29;
+  box-shadow: 0 0 10px rgba(223, 171, 41, 0.25);
+}
+.guard-station-bay.locked {
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px dashed rgba(255, 255, 255, 0.15);
+  opacity: 0.7;
+}
+
+.guard-bay-main {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  min-width: 0;
+  flex: 1;
+}
+
+.guard-bay-avatar-wrap {
+  position: relative;
+  width: 20px;
+  height: 20px;
+  background: radial-gradient(circle, rgba(223, 171, 41, 0.3) 0%, transparent 70%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  flex-shrink: 0;
+}
+.guard-bay-avatar-wrap.locked {
+  background: rgba(255, 255, 255, 0.05);
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+.guard-bay-status-dot {
+  position: absolute;
+  bottom: -1px;
+  right: -1px;
+  width: 5px;
+  height: 5px;
+  background: #10b981;
+  border-radius: 50%;
+  border: 1px solid #0f172a;
+  box-shadow: 0 0 4px #10b981;
+}
+
+.guard-bay-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.05;
+}
+
+.guard-bay-name {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #ffffff;
+  white-space: nowrap;
+}
+
+.guard-station-bay.locked .guard-bay-name {
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.guard-bay-status {
+  font-size: 0.58rem;
+  color: #10b981;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.guard-bay-status.locked {
+  color: #94a3b8;
+}
+
+.guard-bay-badge {
+  font-size: 0.6rem;
+  background: rgba(223, 171, 41, 0.15);
+  border: 1px solid rgba(223, 171, 41, 0.4);
+  color: #facc15;
+  padding: 1px 3px;
+  border-radius: 4px;
+  font-weight: 700;
+  font-family: "Outfit", sans-serif;
+  flex-shrink: 0;
+}
+.guard-bay-badge.locked {
+  background: transparent;
+  border: none;
+  color: #64748b;
+  font-size: 0.65rem;
+}
+
 /* Parallel Guards (Couriers) styling */
 .guard-runner {
   position: absolute;

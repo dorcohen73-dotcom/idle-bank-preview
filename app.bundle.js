@@ -859,56 +859,99 @@
   // ui/draw/security.js
   var anchorCache = null;
   var lastCacheTime = 0;
-  function getCourierPos(segmentPosition, isMovingToVault = false, lastTellerIdx = -1) {
-    const now = Date.now();
-    if (!anchorCache || now - lastCacheTime > 2e3) {
-      const floorEl2 = document.getElementById("bank-floor-section");
-      if (floorEl2) {
-        const floorRect2 = floorEl2.getBoundingClientRect();
-        const points2 = [];
-        const fallback = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8];
-        const tellerEls = document.querySelectorAll(".teller-counter");
-        tellerEls.forEach((el, idx) => {
-          const rect = el.getBoundingClientRect();
-          points2.push({
-            val: fallback[idx] || 0.9,
-            x: rect.left - floorRect2.left + rect.width / 2,
-            y: rect.top - floorRect2.top + rect.height / 2 + 40
-            // Offset slightly below teller desk
-          });
-        });
-        points2.sort((a, b) => a.val - b.val);
-        anchorCache = points2;
-        lastCacheTime = now;
+  function renderGuardStationsHub(lang) {
+    const hub = document.getElementById("guard-stations-hub");
+    if (!hub || !window.game || !window.game.state || !Array.isArray(window.game.state.guards)) return;
+    const t = window.translations && window.translations[lang] ? window.translations[lang] : {};
+    const unlockCosts = window.GAME_CONFIG && window.GAME_CONFIG.GUARD_UNLOCK_COSTS || [0, 2500, 7e4];
+    const guardsHtml = window.game.state.guards.map((g, idx) => {
+      const cost = unlockCosts[idx] || 0;
+      if (g.unlocked) {
+        const isOnDuty = g.state && g.state !== "idle";
+        const statusText = isOnDuty ? t.guardOnDuty || "\u05D1\u05E1\u05D9\u05D5\u05E8 \u05E4\u05E2\u05D9\u05DC" : t.guardReady || "\u05DE\u05D5\u05DB\u05DF";
+        return `
+                <div class="guard-station-bay active" id="guard-bay-${g.id}" data-guard-id="${g.id}">
+                    <div class="guard-bay-main">
+                        <div class="guard-bay-avatar-wrap">
+                            <span class="guard-bay-icon">\u{1F46E}\u200D\u2642\uFE0F</span>
+                            <span class="guard-bay-status-dot"></span>
+                        </div>
+                        <div class="guard-bay-info">
+                            <div class="guard-bay-name">${t.guardLabel || "\u05D1\u05DC\u05D3\u05E8"} ${g.id + 1}</div>
+                            <div class="guard-bay-status">${statusText}</div>
+                        </div>
+                    </div>
+                    <div class="guard-bay-badge">${t.levelLabel || "\u05E8\u05DE\u05D4"} ${g.level || 1}</div>
+                </div>
+            `;
+      } else {
+        return `
+                <div class="guard-station-bay locked" id="guard-bay-${g.id}" data-guard-id="${g.id}">
+                    <div class="guard-bay-main">
+                        <div class="guard-bay-avatar-wrap locked">
+                            <span class="guard-bay-icon">\u{1F512}</span>
+                        </div>
+                        <div class="guard-bay-info">
+                            <div class="guard-bay-name">${t.guardLabel || "\u05D1\u05DC\u05D3\u05E8"} ${g.id + 1}</div>
+                            <div class="guard-bay-status locked">${t.guardLockedLabel || "\u05E0\u05E2\u05D5\u05DC"} (${formatMoney2(cost)})</div>
+                        </div>
+                    </div>
+                    <div class="guard-bay-badge locked">\u{1F512}</div>
+                </div>
+            `;
       }
+    }).join("");
+    if (hub.innerHTML !== guardsHtml) {
+      hub.innerHTML = guardsHtml;
     }
+  }
+  function getCourierPos(segmentPosition, isMovingToVault = false, lastTellerIdx = -1, guardId = 0) {
+    const now = Date.now();
     const floorEl = document.getElementById("bank-floor-section");
-    if (!floorEl || !anchorCache || anchorCache.length === 0) return { x: 0, y: 0 };
-    let vaultEl = document.getElementById("vault-graphic");
-    if (window.innerWidth <= 768) {
-      const miniVault = document.getElementById("vault-mini-icon");
-      if (miniVault && miniVault.offsetParent !== null) vaultEl = miniVault;
+    if (!floorEl) return { x: 0, y: 0 };
+    if (!anchorCache || now - lastCacheTime > 2e3) {
+      const floorRect2 = floorEl.getBoundingClientRect();
+      const points2 = [];
+      const fallback = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8];
+      const tellerEls = document.querySelectorAll(".teller-counter");
+      tellerEls.forEach((el, idx) => {
+        const rect = el.getBoundingClientRect();
+        points2.push({
+          val: fallback[idx] || 0.9,
+          x: rect.left - floorRect2.left + rect.width / 2,
+          y: rect.top - floorRect2.top + rect.height / 2 + 40
+          // Offset slightly below teller desk
+        });
+      });
+      points2.sort((a, b) => a.val - b.val);
+      anchorCache = points2;
+      lastCacheTime = now;
     }
+    if (!anchorCache || anchorCache.length === 0) return { x: 0, y: 0 };
     const floorRect = floorEl.getBoundingClientRect();
-    const vaultRect = vaultEl ? vaultEl.getBoundingClientRect() : { left: 0, top: 0, width: 0, height: 0 };
-    const dynamicVault = {
+    let bayEl = document.getElementById(`guard-bay-${guardId}`);
+    if (!bayEl || bayEl.offsetParent === null) {
+      bayEl = document.getElementById("guard-stations-hub") || document.getElementById("vault-graphic");
+    }
+    const bayRect = bayEl ? bayEl.getBoundingClientRect() : { left: 0, top: 0, width: 0, height: 0 };
+    const dynamicStation = {
       val: 0,
-      x: vaultRect.left - floorRect.left + vaultRect.width / 2,
-      y: vaultRect.top - floorRect.top + vaultRect.height / 2
+      x: bayRect.left - floorRect.left + bayRect.width / 2,
+      y: bayRect.top - floorRect.top + bayRect.height / 2
     };
-    const points = [dynamicVault, ...anchorCache];
+    const points = [dynamicStation, ...anchorCache];
     if (isMovingToVault && lastTellerIdx >= 0 && points.length > 1) {
-      const vault = points[0];
+      const station = points[0];
       const startPoint = points[lastTellerIdx + 1] || points[points.length - 1];
-      const totalDist = startPoint.val - vault.val;
+      const totalDist = startPoint.val - station.val;
       let t = 0;
       if (totalDist > 0) {
         t = (startPoint.val - segmentPosition) / totalDist;
       }
       t = Math.max(0, Math.min(1, t));
       return {
-        x: startPoint.x + t * (vault.x - startPoint.x),
-        y: startPoint.y + t * (vault.y - startPoint.y)
+        x: startPoint.x + t * (station.x - startPoint.x),
+        y: startPoint.y + t * (station.y - startPoint.y)
       };
     }
     if (segmentPosition <= points[0].val) return { x: points[0].x, y: points[0].y };
@@ -918,41 +961,16 @@
         const p1 = points[i];
         const p2 = points[i + 1];
         let t = (segmentPosition - p1.val) / (p2.val - p1.val);
-        if (Math.abs(p1.y - p2.y) < 60) {
-          return {
-            x: p1.x + t * (p2.x - p1.x),
-            y: p1.y + t * (p2.y - p1.y)
-          };
-        }
-        let aisleY;
-        if (p1.val === 0 || p2.val === 0) {
-          aisleY = p1.val === 0 ? p1.y : p2.y;
-        } else {
-          aisleY = (p1.y + p2.y) / 2;
-        }
-        const dist1 = Math.abs(aisleY - p1.y);
-        const dist2 = Math.abs(p2.x - p1.x);
-        const dist3 = Math.abs(p2.y - aisleY);
-        const totalDist = dist1 + dist2 + dist3;
-        if (totalDist === 0) return { x: p1.x, y: p1.y };
-        const t1 = dist1 / totalDist;
-        const t2 = dist2 / totalDist;
-        if (t <= t1) {
-          const subT = t1 === 0 ? 0 : t / t1;
-          return { x: p1.x, y: p1.y + subT * (aisleY - p1.y) };
-        } else if (t <= t1 + t2) {
-          const subT = t2 === 0 ? 0 : (t - t1) / t2;
-          return { x: p1.x + subT * (p2.x - p1.x), y: aisleY };
-        } else {
-          const t3 = 1 - t1 - t2;
-          const subT = t3 <= 0 ? 0 : (t - t1 - t2) / t3;
-          return { x: p2.x, y: aisleY + subT * (p2.y - aisleY) };
-        }
+        return {
+          x: p1.x + t * (p2.x - p1.x),
+          y: p1.y + t * (p2.y - p1.y)
+        };
       }
     }
     return { x: 0, y: 0 };
   }
   function updateGuardsDisplay(lang) {
+    renderGuardStationsHub(lang);
     const unlockedGuards = game.state.guards.filter((g) => g.unlocked);
     const bankFloor = document.getElementById("bank-floor-section");
     if (!bankFloor) return;
@@ -987,9 +1005,9 @@
         const isMovingToTeller = gData.state.startsWith("moving_to_teller_");
         const isCollecting = gData.state.startsWith("collecting_from_teller_");
         const isMovingToVault = gData.state === "moving_to_vault";
-        const pos = getCourierPos(gData.position, isMovingToVault, gData.lastCollectedTellerIndex);
-        const offsetX = gData.id * 10;
-        const offsetY = gData.id * 10;
+        const pos = getCourierPos(gData.position, isMovingToVault, gData.lastCollectedTellerIndex, gData.id);
+        const offsetX = gData.id * 6;
+        const offsetY = gData.id * 4;
         runner.style.left = `${pos.x + offsetX}px`;
         runner.style.top = `${pos.y + offsetY}px`;
         runner.style.transform = `translate(-50%, -50%)`;
