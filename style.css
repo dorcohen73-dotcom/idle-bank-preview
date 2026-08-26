@@ -680,17 +680,17 @@ header {
   box-shadow: 0 0 25px rgba(223, 171, 41, 0.15), inset 0 0 40px rgba(0, 0, 0, 0.85), var(--card-shadow);
 }
 
-/* Customer Queue & Advertising Group (Ultra-Premium Redesign Matching Mockup) */
+/* Customer Queue & Advertising Group (Clean, Breathable, Ultra-Refined Luxury) */
 .queue-wrapper.queue-premium-design {
   background: linear-gradient(180deg, #131a29 0%, #090d15 100%);
-  border: 1.5px solid rgba(223, 171, 41, 0.4);
-  border-radius: 18px;
-  padding: 0.9rem 1.1rem;
-  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.75), inset 0 1px 1px rgba(223, 171, 41, 0.3);
+  border: 1.5px solid rgba(223, 171, 41, 0.35);
+  border-radius: 14px;
+  padding: 0.65rem 0.85rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.65), inset 0 1px 1px rgba(223, 171, 41, 0.25);
   display: flex;
-  flex-direction: row-reverse; /* Put glowing golden badge on right side in RTL */
+  flex-direction: row;
   align-items: center;
-  gap: 1.2rem;
+  gap: 0.85rem;
   width: 100%;
   box-sizing: border-box;
   position: relative;
@@ -703,101 +703,74 @@ header {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 0.75rem;
+  gap: 0.45rem;
 }
 
 .queue-progress-bar {
   width: 100%;
-  height: 14px;
+  height: 10px;
   background: #141b28;
-  border-radius: 10px;
+  border-radius: 6px;
   overflow: hidden;
   position: relative;
-  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.9), 0 1px 1px rgba(255, 255, 255, 0.05);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.85);
 }
 
 .queue-progress-fill {
   height: 100%;
   width: 0%;
   background: linear-gradient(90deg, #4ade80 0%, #a3e635 35%, #facc15 70%, #f87171 100%);
-  border-radius: 10px;
+  border-radius: 6px;
   transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 0 16px rgba(163, 230, 53, 0.65);
+  box-shadow: 0 0 12px rgba(163, 230, 53, 0.6);
 }
 
-.queue-status-section {
+.queue-status-row {
   display: flex;
-  flex-direction: row-reverse; /* Icon on left, text on right in RTL */
   align-items: center;
-  justify-content: flex-end;
-  gap: 0.75rem;
-  min-width: 0;
+  gap: 0.5rem;
 }
 
-.queue-status-badge {
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  display: flex;
+.queue-status-pill {
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  font-family: "Outfit", sans-serif;
+  gap: 0.35rem;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.76rem;
   font-weight: 800;
-  transition: all 0.3s ease;
+  white-space: nowrap;
+  transition: all 0.25s ease;
 }
-.queue-status-badge.alert-badge {
-  background: rgba(234, 179, 8, 0.12);
-  border: 1.5px solid rgba(234, 179, 8, 0.65);
-  box-shadow: 0 0 14px rgba(234, 179, 8, 0.35);
-  color: #facc15;
-  font-size: 1.2rem;
-}
-.queue-status-badge.alert-badge.full-alert {
-  background: rgba(239, 68, 68, 0.18);
-  border-color: rgba(239, 68, 68, 0.75);
-  box-shadow: 0 0 16px rgba(239, 68, 68, 0.5);
-  color: #f87171;
-}
-.queue-status-badge.ok-badge {
-  background: rgba(16, 185, 129, 0.12);
-  border: 1.5px solid rgba(16, 185, 129, 0.65);
-  box-shadow: 0 0 14px rgba(16, 185, 129, 0.35);
+.queue-status-pill.ok-pill {
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.5);
   color: #10b981;
-  font-size: 1rem;
+}
+.queue-status-pill.alert-pill {
+  background: rgba(59, 130, 246, 0.15);
+  border: 1px solid rgba(59, 130, 246, 0.5);
+  color: #60a5fa;
+}
+.queue-status-pill.warning-pill {
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid rgba(245, 158, 11, 0.5);
+  color: #fbbf24;
 }
 
-.queue-status-text-group {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  min-width: 0;
+.queue-status-icon {
+  font-size: 0.75rem;
+  line-height: 1;
 }
 
 .queue-status-text {
-  font-size: 1.02rem;
-  font-weight: 800;
-  color: #ffffff;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
   line-height: 1.2;
 }
 
-.queue-status-subtext {
-  font-size: 0.78rem;
-  font-weight: 600;
-  color: #94a3b8;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  line-height: 1.1;
-}
-
-/* Big 3D Glowing Golden Count Circle */
+/* Gold Count Badge */
 .queue-capacity-badge-container {
-  width: 82px;
-  height: 82px;
+  width: 60px;
+  height: 60px;
   position: relative;
   display: flex;
   align-items: center;
@@ -807,40 +780,41 @@ header {
 
 .queue-capacity-glow-ring {
   position: absolute;
-  width: 78px;
-  height: 78px;
+  width: 56px;
+  height: 56px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(223, 171, 41, 0.28) 0%, rgba(223, 171, 41, 0.08) 60%, transparent 80%);
-  border: 1.5px solid rgba(223, 171, 41, 0.6);
-  box-shadow: 0 0 22px rgba(223, 171, 41, 0.45), inset 0 0 14px rgba(223, 171, 41, 0.3);
+  background: radial-gradient(circle, rgba(223, 171, 41, 0.25) 0%, rgba(223, 171, 41, 0.05) 65%, transparent 80%);
+  border: 1.5px solid rgba(223, 171, 41, 0.55);
+  box-shadow: 0 0 16px rgba(223, 171, 41, 0.35), inset 0 0 10px rgba(223, 171, 41, 0.2);
 }
 
 .queue-capacity-label {
   font-family: "Outfit", sans-serif;
-  font-size: 1.85rem;
+  font-size: 1.35rem;
   font-weight: 900;
   background: linear-gradient(180deg, #fff8cc 0%, #ffd700 45%, #e6a817 75%, #a67c1e 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.95));
+  filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.9));
   z-index: 2;
   position: relative;
   line-height: 1;
   letter-spacing: -0.5px;
 }
 
-/* Advertising Control (Ultra-Premium Mockup Match) */
+/* Advertising Control (Clean, Spacious & Beautiful) */
 .advertising-control {
   background: linear-gradient(180deg, #131a29 0%, #090d15 100%);
   border: 1.5px solid rgba(223, 171, 41, 0.35);
-  border-radius: 18px;
-  padding: 0.9rem 1.1rem;
+  border-radius: 14px;
+  padding: 0.65rem 0.85rem;
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
-  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.75), inset 0 1px 1px rgba(223, 171, 41, 0.25);
+  gap: 0.5rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.65), inset 0 1px 1px rgba(223, 171, 41, 0.2);
   box-sizing: border-box;
   width: 100%;
+  overflow: hidden;
 }
 
 .adv-header {
@@ -848,144 +822,125 @@ header {
   justify-content: space-between;
   align-items: center;
   gap: 0.5rem;
+  width: 100%;
 }
 
 .adv-title-group {
   display: flex;
   align-items: center;
-  gap: 0.55rem;
+  gap: 0.4rem;
 }
 
-.adv-icon-badge {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  font-size: 1.1rem;
-}
-.adv-icon-badge.purple-badge {
-  background: rgba(168, 85, 247, 0.18);
-  border: 1.5px solid rgba(168, 85, 247, 0.6);
-  box-shadow: 0 0 14px rgba(168, 85, 247, 0.4);
-}
-.adv-icon-badge.green-badge {
-  background: rgba(16, 185, 129, 0.18);
-  border: 1.5px solid rgba(16, 185, 129, 0.6);
-  box-shadow: 0 0 14px rgba(16, 185, 129, 0.4);
+.adv-title-icon {
+  font-size: 1rem;
+  line-height: 1;
 }
 
 .adv-title {
-  font-size: 0.92rem;
+  font-size: 0.88rem;
   font-weight: 800;
   color: #ffffff;
   white-space: nowrap;
 }
 
-.adv-value-group {
-  display: flex;
+.adv-value-pill {
+  display: inline-flex;
   align-items: center;
-  gap: 0.55rem;
+  gap: 0.35rem;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  white-space: nowrap;
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.5);
+  color: #4ade80;
+}
+.adv-value-pill.off {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.15);
+  color: #94a3b8;
+}
+.adv-value-pill.suspended {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: rgba(239, 68, 68, 0.5);
+  color: #f87171;
+}
+
+.adv-value-icon {
+  font-size: 0.8rem;
+  line-height: 1;
 }
 
 .adv-value {
   font-family: "Outfit", sans-serif;
-  font-size: 0.95rem;
   font-weight: 800;
-  color: #4ade80;
-  text-shadow: 0 0 12px rgba(74, 222, 128, 0.5);
-  white-space: nowrap;
-  transition: color 0.3s ease;
-}
-.adv-value.insufficient {
-  color: #f87171;
-  text-shadow: 0 0 12px rgba(248, 113, 113, 0.5);
 }
 
 .adv-slider-wrapper {
   display: flex;
   align-items: center;
-  gap: 0.8rem;
+  gap: 0.65rem;
   width: 100%;
+  box-sizing: border-box;
 }
 
 .adv-limit {
-  font-size: 0.82rem;
+  font-size: 0.75rem;
   font-weight: 700;
   color: #94a3b8;
-  min-width: 48px;
+  min-width: 40px;
   text-align: center;
+  flex-shrink: 0;
 }
 
 .adv-slider-track-container {
   flex: 1;
   position: relative;
   display: flex;
-  flex-direction: column;
-  justify-content: center;
+  align-items: center;
+  min-width: 0;
 }
 
 .adv-slider {
   -webkit-appearance: none;
   appearance: none;
   width: 100%;
-  height: 8px;
-  border-radius: 4px;
+  height: 6px;
+  border-radius: 3px;
   background: linear-gradient(to right, #4ade80 0%, #4ade80 var(--slider-pct, 0%), rgba(255, 255, 255, 0.12) var(--slider-pct, 0%), rgba(255, 255, 255, 0.12) 100%);
   outline: none;
   cursor: pointer;
-  position: relative;
-  z-index: 2;
   margin: 0;
 }
 .adv-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 26px;
-  height: 26px;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
   background: radial-gradient(circle at 35% 35%, #fff6ad 0%, #dfab29 45%, #966f0a 100%);
-  border: 2px solid #ffffff;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.85), 0 0 14px rgba(223, 171, 41, 0.8);
+  border: 1.5px solid #ffffff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.85), 0 0 10px rgba(223, 171, 41, 0.7);
   cursor: grab;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 .adv-slider::-webkit-slider-thumb:hover {
   transform: scale(1.15);
-  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.9), 0 0 18px rgba(255, 215, 0, 0.95);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.9), 0 0 14px rgba(255, 215, 0, 0.95);
 }
 .adv-slider::-webkit-slider-thumb:active {
   transform: scale(1.05);
   cursor: grabbing;
 }
 .adv-slider::-moz-range-thumb {
-  width: 26px;
-  height: 26px;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
   background: radial-gradient(circle at 35% 35%, #fff6ad 0%, #dfab29 45%, #966f0a 100%);
-  border: 2px solid #ffffff;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.85), 0 0 14px rgba(223, 171, 41, 0.8);
+  border: 1.5px solid #ffffff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.85), 0 0 10px rgba(223, 171, 41, 0.7);
   cursor: grab;
-}
-
-.adv-slider-ticks {
-  position: absolute;
-  width: 100%;
-  top: 14px;
-  left: 0;
-  display: flex;
-  justify-content: space-between;
-  padding: 0 6px;
-  box-sizing: border-box;
-  pointer-events: none;
-}
-.adv-slider-ticks span {
-  width: 2px;
-  height: 5px;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 1px;
 }
 
 /* Removed avatar queue styles per user request */
@@ -1560,16 +1515,17 @@ header {
 }
 
 .guard-bay-lvl-pill {
-  font-size: 0.72rem;
+  font-size: 0.64rem;
   font-weight: 800;
   color: #dfab29;
   background: rgba(223, 171, 41, 0.18);
   border: 1px solid rgba(223, 171, 41, 0.5);
-  padding: 1px 6px;
-  border-radius: 5px;
+  padding: 1px 5px;
+  border-radius: 4px;
   white-space: nowrap;
   font-family: "Outfit", sans-serif;
-  line-height: 1.2;
+  line-height: 1.1;
+  letter-spacing: -0.2px;
   width: fit-content;
 }
 

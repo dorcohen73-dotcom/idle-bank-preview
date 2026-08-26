@@ -1332,9 +1332,8 @@
     const capLabel = DOM_CACHE.queueCapLabel;
     const fillBar = DOM_CACHE.queueFillBar;
     const statText = DOM_CACHE.queueStatText;
-    const statSubtext = DOM_CACHE.queueStatSubtext;
     const statIcon = DOM_CACHE.queueStatIcon;
-    const statBadge = DOM_CACHE.queueStatBadge;
+    const statPill = document.getElementById("queue-status-pill");
     if (capLabel && window.game) {
       const queueData = game.getQueueRenderData();
       const maxCap = queueData.capacity;
@@ -1349,28 +1348,25 @@
       const isTooHigh = currentLen >= maxCap - 1 || maxCap > 0 && currentLen / maxCap >= 0.8;
       if (isTooLow) {
         if (statText) statText.textContent = tObj.queueStatusEmpty || "\u05D4\u05EA\u05D5\u05E8 \u05E4\u05E0\u05D5\u05D9";
-        if (statSubtext) statSubtext.textContent = tObj.queueSubtextEmpty || "\u05D4\u05E4\u05E2\u05DC \u05E7\u05DE\u05E4\u05D9\u05D9\u05DF \u05E9\u05D9\u05D5\u05D5\u05E7 \u05DC\u05D4\u05D1\u05D0\u05EA \u05DC\u05E7\u05D5\u05D7\u05D5\u05EA!";
         if (statIcon) statIcon.textContent = "!";
-        if (statBadge) statBadge.className = "queue-status-badge alert-badge";
+        if (statPill) statPill.className = "queue-status-pill alert-pill";
       } else if (isTooHigh) {
         const spotsLeft = maxCap - currentLen;
         if (statText) {
           if (spotsLeft <= 0) {
-            statText.textContent = tObj.queueStatusFull || "\u05D4\u05EA\u05D5\u05E8 \u05DE\u05DC\u05D0!";
+            statText.textContent = tObj.queueStatusFull || "\u05EA\u05D5\u05E8 \u05DE\u05DC\u05D0!";
           } else if (spotsLeft === 1) {
-            statText.textContent = tObj.queueOneSpotLeft || "\u05E0\u05D5\u05EA\u05E8 \u05DE\u05E7\u05D5\u05DD 1 \u05D1\u05DC\u05D1\u05D3";
+            statText.textContent = tObj.queueOneSpotLeft || "\u05E0\u05D5\u05EA\u05E8 \u05DE\u05E7\u05D5\u05DD 1";
           } else {
-            statText.textContent = tObj.queueSpotsLeft ? tObj.queueSpotsLeft(spotsLeft) : `\u05E0\u05D5\u05EA\u05E8\u05D5 ${spotsLeft} \u05DE\u05E7\u05D5\u05DE\u05D5\u05EA \u05D1\u05DC\u05D1\u05D3`;
+            statText.textContent = tObj.queueSpotsLeft ? tObj.queueSpotsLeft(spotsLeft) : `\u05E0\u05D5\u05EA\u05E8\u05D5 ${spotsLeft} \u05DE\u05E7\u05D5\u05DE\u05D5\u05EA`;
           }
         }
-        if (statSubtext) statSubtext.textContent = tObj.queueSubtextAlmostFull || "\u05D4\u05D6\u05D3\u05DE\u05E0\u05D5\u05EA \u05D0\u05D7\u05E8\u05D5\u05E0\u05D4 \u05DC\u05D4\u05E9\u05E7\u05D9\u05E2!";
-        if (statIcon) statIcon.textContent = "!";
-        if (statBadge) statBadge.className = "queue-status-badge alert-badge full-alert";
+        if (statIcon) statIcon.textContent = "\u26A0\uFE0F";
+        if (statPill) statPill.className = "queue-status-pill warning-pill";
       } else {
-        if (statText) statText.textContent = tObj.queueStatusOk || "\u05EA\u05D5\u05E8 \u05E4\u05E2\u05D9\u05DC \u05D5\u05DE\u05D0\u05D5\u05D6\u05DF";
-        if (statSubtext) statSubtext.textContent = tObj.queueSubtextOk || "\u05E7\u05E6\u05D1 \u05DB\u05E0\u05D9\u05E1\u05EA \u05DC\u05E7\u05D5\u05D7\u05D5\u05EA \u05DE\u05E2\u05D5\u05DC\u05D4";
+        if (statText) statText.textContent = tObj.queueStatusOk || "\u05EA\u05D5\u05E8 \u05E4\u05E2\u05D9\u05DC";
         if (statIcon) statIcon.textContent = "\u2714";
-        if (statBadge) statBadge.className = "queue-status-badge ok-badge";
+        if (statPill) statPill.className = "queue-status-pill ok-pill";
       }
     }
   }
@@ -3143,18 +3139,20 @@
     if (maxLimitLabel) {
       maxLimitLabel.textContent = formatMoney(dynamicMax);
     }
+    const pill = document.getElementById("adv-value-pill");
     if (budget === 0) {
       DOM_CACHE.advDisplay.innerText = tObj.advValueOff || "\u05DB\u05D1\u05D5\u05D9";
-      DOM_CACHE.advDisplay.classList.remove("insufficient", "active-campaign");
+      DOM_CACHE.advDisplay.classList.remove("insufficient");
+      if (pill) pill.className = "adv-value-pill off";
     } else {
-      DOM_CACHE.advDisplay.innerText = formatMoney(budget) + (tObj.perMinute || " \u05DC\u05D3\u05E7\u05D4");
+      DOM_CACHE.advDisplay.innerText = "\u{1F4C8} " + formatMoney(budget) + (tObj.perMinute || " \u05DC\u05D3\u05E7\u05D4");
       if (window.game && game.state && !game.state.advActive) {
         DOM_CACHE.advDisplay.innerText += tObj.advSuspended || " [\u05DE\u05D5\u05E9\u05D4\u05D4]";
         DOM_CACHE.advDisplay.classList.add("insufficient");
-        DOM_CACHE.advDisplay.classList.remove("active-campaign");
+        if (pill) pill.className = "adv-value-pill suspended";
       } else {
         DOM_CACHE.advDisplay.classList.remove("insufficient");
-        DOM_CACHE.advDisplay.classList.add("active-campaign");
+        if (pill) pill.className = "adv-value-pill active";
       }
     }
   }
