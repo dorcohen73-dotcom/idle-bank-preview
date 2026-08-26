@@ -868,35 +868,37 @@
       const cost = unlockCosts[idx] || 0;
       if (g.unlocked) {
         const isOnDuty = g.state && g.state !== "idle";
-        const statusText = isOnDuty ? t.guardOnDuty || "\u05D1\u05E1\u05D9\u05D5\u05E8 \u05E4\u05E2\u05D9\u05DC" : t.guardReady || "\u05DE\u05D5\u05DB\u05DF";
+        const statusText = isOnDuty ? t.guardOnDuty || "\u05D1\u05E1\u05D9\u05D5\u05E8" : t.guardReady || "\u05DE\u05D5\u05DB\u05DF";
         return `
                 <div class="guard-station-bay active" id="guard-bay-${g.id}" data-guard-id="${g.id}">
-                    <div class="guard-bay-main">
-                        <div class="guard-bay-avatar-wrap">
-                            <span class="guard-bay-icon">\u{1F46E}\u200D\u2642\uFE0F</span>
-                            <span class="guard-bay-status-dot"></span>
+                    <div class="guard-bay-slot" id="guard-slot-${g.id}">
+                        <span class="guard-bay-slot-base"></span>
+                    </div>
+                    <div class="guard-bay-content">
+                        <div class="guard-bay-name-row">
+                            <span class="guard-bay-name">${t.guardLabel || "\u05D1\u05DC\u05D3\u05E8"} ${g.id + 1}</span>
                         </div>
-                        <div class="guard-bay-info">
-                            <div class="guard-bay-name">${t.guardLabel || "\u05D1\u05DC\u05D3\u05E8"} ${g.id + 1}</div>
-                            <div class="guard-bay-status">${statusText}</div>
+                        <div class="guard-bay-bottom-row">
+                            <span class="guard-bay-status">${statusText}</span>
+                            <span class="guard-bay-lvl-pill">${t.levelLabel || "\u05E8\u05DE\u05D4"} ${g.level || 1}</span>
                         </div>
                     </div>
-                    <div class="guard-bay-badge">${t.levelLabel || "\u05E8\u05DE\u05D4"} ${g.level || 1}</div>
                 </div>
             `;
       } else {
         return `
                 <div class="guard-station-bay locked" id="guard-bay-${g.id}" data-guard-id="${g.id}">
-                    <div class="guard-bay-main">
-                        <div class="guard-bay-avatar-wrap locked">
-                            <span class="guard-bay-icon">\u{1F512}</span>
+                    <div class="guard-bay-slot">
+                        <span class="guard-bay-lock-icon">\u{1F512}</span>
+                    </div>
+                    <div class="guard-bay-content">
+                        <div class="guard-bay-name-row">
+                            <span class="guard-bay-name">${t.guardLabel || "\u05D1\u05DC\u05D3\u05E8"} ${g.id + 1}</span>
                         </div>
-                        <div class="guard-bay-info">
-                            <div class="guard-bay-name">${t.guardLabel || "\u05D1\u05DC\u05D3\u05E8"} ${g.id + 1}</div>
-                            <div class="guard-bay-status locked">${t.guardLockedLabel || "\u05E0\u05E2\u05D5\u05DC"} (${formatMoney2(cost)})</div>
+                        <div class="guard-bay-bottom-row">
+                            <span class="guard-bay-status locked">${t.guardLockedLabel || "\u05E0\u05E2\u05D5\u05DC"} (${formatMoney2(cost)})</span>
                         </div>
                     </div>
-                    <div class="guard-bay-badge locked">\u{1F512}</div>
                 </div>
             `;
       }
@@ -907,10 +909,10 @@
   }
   function getCourierPos(segmentPosition, isMovingToVault = false, lastTellerIdx = -1, guardId = 0) {
     const now = Date.now();
-    const floorEl = document.getElementById("bank-floor-section");
-    if (!floorEl) return { x: 0, y: 0 };
+    const floorMap = document.getElementById("floor-map");
+    if (!floorMap) return { x: 0, y: 0 };
     if (!anchorCache || now - lastCacheTime > 2e3) {
-      const floorRect2 = floorEl.getBoundingClientRect();
+      const mapRect2 = floorMap.getBoundingClientRect();
       const points2 = [];
       const fallback = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8];
       const tellerEls = document.querySelectorAll(".teller-counter");
@@ -918,9 +920,8 @@
         const rect = el.getBoundingClientRect();
         points2.push({
           val: fallback[idx] || 0.9,
-          x: rect.left - floorRect2.left + rect.width / 2,
-          y: rect.top - floorRect2.top + rect.height / 2 + 40
-          // Offset slightly below teller desk
+          x: rect.left - mapRect2.left + rect.width / 2,
+          y: rect.top - mapRect2.top + rect.height / 2 + 40
         });
       });
       points2.sort((a, b) => a.val - b.val);
@@ -928,16 +929,16 @@
       lastCacheTime = now;
     }
     if (!anchorCache || anchorCache.length === 0) return { x: 0, y: 0 };
-    const floorRect = floorEl.getBoundingClientRect();
-    let bayEl = document.getElementById(`guard-bay-${guardId}`);
-    if (!bayEl || bayEl.offsetParent === null) {
-      bayEl = document.getElementById("guard-stations-hub") || document.getElementById("vault-graphic");
+    const mapRect = floorMap.getBoundingClientRect();
+    let slotEl = document.getElementById(`guard-slot-${guardId}`) || document.getElementById(`guard-bay-${guardId}`);
+    if (!slotEl || slotEl.offsetParent === null) {
+      slotEl = document.getElementById("guard-stations-hub") || document.getElementById("vault-graphic");
     }
-    const bayRect = bayEl ? bayEl.getBoundingClientRect() : { left: 0, top: 0, width: 0, height: 0 };
+    const slotRect = slotEl ? slotEl.getBoundingClientRect() : { left: 0, top: 0, width: 0, height: 0 };
     const dynamicStation = {
       val: 0,
-      x: bayRect.left - floorRect.left + bayRect.width / 2,
-      y: bayRect.top - floorRect.top + bayRect.height / 2
+      x: slotRect.left - mapRect.left + slotRect.width / 2,
+      y: slotRect.top - mapRect.top + slotRect.height / 2
     };
     const points = [dynamicStation, ...anchorCache];
     if (isMovingToVault && lastTellerIdx >= 0 && points.length > 1) {
@@ -972,21 +973,21 @@
   function updateGuardsDisplay(lang) {
     renderGuardStationsHub(lang);
     const unlockedGuards = game.state.guards.filter((g) => g.unlocked);
-    const bankFloor = document.getElementById("bank-floor-section");
-    if (!bankFloor) return;
+    const floorMap = document.getElementById("floor-map");
+    if (!floorMap) return;
     if (unlockedGuards.length > 0) {
       const currentGuardIds = unlockedGuards.map((g) => g.id.toString());
-      const existingRunners = Array.from(bankFloor.querySelectorAll(".guard-runner"));
+      const existingRunners = Array.from(floorMap.querySelectorAll(".guard-runner"));
       existingRunners.forEach((node) => {
         const gid = node.getAttribute("data-guard-id");
         if (!currentGuardIds.includes(gid)) {
-          bankFloor.removeChild(node);
+          floorMap.removeChild(node);
         }
       });
       unlockedGuards.forEach((g) => {
         const gData = game.getGuardRenderData(g.id);
         if (!gData) return;
-        let runner = bankFloor.querySelector(`.guard-runner[data-guard-id="${gData.id}"]`);
+        let runner = floorMap.querySelector(`.guard-runner[data-guard-id="${gData.id}"]`);
         if (!runner) {
           runner = document.createElement("div");
           runner.className = "guard-runner";
@@ -1000,21 +1001,21 @@
           const loadEl2 = document.createElement("div");
           loadEl2.className = "guard-runner-load";
           runner.appendChild(loadEl2);
-          bankFloor.appendChild(runner);
+          floorMap.appendChild(runner);
         }
         const isMovingToTeller = gData.state.startsWith("moving_to_teller_");
         const isCollecting = gData.state.startsWith("collecting_from_teller_");
         const isMovingToVault = gData.state === "moving_to_vault";
+        const isIdle = gData.state === "idle";
         const pos = getCourierPos(gData.position, isMovingToVault, gData.lastCollectedTellerIndex, gData.id);
-        const offsetX = gData.id * 6;
-        const offsetY = gData.id * 4;
-        runner.style.left = `${pos.x + offsetX}px`;
-        runner.style.top = `${pos.y + offsetY}px`;
+        runner.style.left = `${pos.x}px`;
+        runner.style.top = `${pos.y}px`;
         runner.style.transform = `translate(-50%, -50%)`;
         runner.className = "guard-runner";
         runner.classList.add(`state-${gData.state}`);
         if (isMovingToTeller) runner.classList.add("state-moving_to_tellers");
         if (isCollecting) runner.classList.add("state-collecting");
+        if (isIdle) runner.classList.add("state-idle-at-station");
         if (isMovingToTeller) {
           runner.classList.add("moving-left");
         } else if (gData.state === "moving_to_vault") {
@@ -1028,8 +1029,8 @@
         }
       });
     } else {
-      const existingRunners = Array.from(bankFloor.querySelectorAll(".guard-runner"));
-      existingRunners.forEach((node) => bankFloor.removeChild(node));
+      const existingRunners = Array.from(floorMap.querySelectorAll(".guard-runner"));
+      existingRunners.forEach((node) => floorMap.removeChild(node));
     }
   }
 
