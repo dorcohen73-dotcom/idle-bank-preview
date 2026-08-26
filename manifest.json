@@ -1,0 +1,26 @@
+{
+  "id": "/",
+  "name": "אימפריית הבנקים",
+  "short_name": "Bank Empire",
+  "description": "משחק Idle בנקאי פרימיום — בנה אימפריית בנקים עולמית",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "background_color": "#0f172a",
+  "theme_color": "#dfab29",
+  "orientation": "portrait",
+  "lang": "he",
+  "dir": "rtl",
+  "categories": ["games", "entertainment"],
+  "icons": [
+    { "src": "images/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    {
+      "src": "images/icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "prefer_related_applications": false
+}
