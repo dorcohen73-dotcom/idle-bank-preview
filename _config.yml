@@ -1,2 +1,5 @@
-theme: null
 markdown: kramdown
+exclude:
+  - 'assets'
+  - 'icons'
+  - 'images'
