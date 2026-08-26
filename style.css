@@ -1330,17 +1330,17 @@ header {
 }
 
 .guard-bay-lvl-pill {
-  font-size: 0.64rem;
+  font-size: 0.72rem;
   font-weight: 800;
   color: #dfab29;
   background: rgba(223, 171, 41, 0.18);
   border: 1px solid rgba(223, 171, 41, 0.5);
-  padding: 1px 4px;
-  border-radius: 4px;
+  padding: 1px 6px;
+  border-radius: 5px;
   white-space: nowrap;
   font-family: "Outfit", sans-serif;
-  line-height: 1;
-  flex-shrink: 0;
+  line-height: 1.2;
+  width: fit-content;
 }
 
 .guard-bay-status {
