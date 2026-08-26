@@ -904,11 +904,11 @@
                         <span class="guard-bay-slot-base"></span>
                     </div>
                     <div class="guard-bay-content">
-                        <div class="guard-bay-name-row">
-                            <span class="guard-bay-name">${t.guardLabel || "\u05D1\u05DC\u05D3\u05E8"} ${g.id + 1}</span>
+                        <div class="guard-bay-name">${t.guardLabel || "\u05D1\u05DC\u05D3\u05E8"} ${g.id + 1}</div>
+                        <div class="guard-bay-bottom-row">
                             <span class="guard-bay-lvl-pill">${t.levelLabel || "\u05E8\u05DE\u05D4"} ${g.level || 1}</span>
+                            <span class="guard-bay-status">${statusText}</span>
                         </div>
-                        <div class="guard-bay-status">${statusText}</div>
                     </div>
                 </div>
             `;

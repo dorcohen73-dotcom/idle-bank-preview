@@ -1217,7 +1217,7 @@ header {
   pointer-events: none;
 }
 
-/* Guard Stations Hub (Dedicated Stations Row - Clean & Polished) */
+/* Guard Stations Hub (Dedicated Stations Row - Fixed Level Pill & No Clipping) */
 .guard-stations-hub {
   display: flex;
   flex-direction: row;
@@ -1239,7 +1239,7 @@ header {
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  padding: 0.45rem 0.5rem;
+  padding: 0.4rem 0.45rem;
   border-radius: 10px;
   min-height: 64px;
   transition: transform 0.15s ease, box-shadow 0.2s ease, border-color 0.2s ease;
@@ -1249,6 +1249,7 @@ header {
   cursor: pointer;
   user-select: none;
   -webkit-tap-highlight-color: transparent;
+  overflow: visible;
 }
 .guard-station-bay:active {
   transform: scale(0.96);
@@ -1304,21 +1305,23 @@ header {
   justify-content: center;
   gap: 3px;
   min-width: 0;
+  overflow: visible;
+}
+
+.guard-bay-bottom-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: nowrap;
   overflow: hidden;
 }
 
-.guard-bay-name-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 2px;
-}
-
 .guard-bay-name {
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   font-weight: 800;
   color: #ffffff;
   white-space: nowrap;
+  line-height: 1.1;
 }
 
 .guard-station-bay.locked .guard-bay-name {
@@ -1327,15 +1330,16 @@ header {
 }
 
 .guard-bay-lvl-pill {
-  font-size: 0.65rem;
+  font-size: 0.64rem;
   font-weight: 800;
   color: #dfab29;
-  background: rgba(223, 171, 41, 0.15);
-  border: 1px solid rgba(223, 171, 41, 0.4);
+  background: rgba(223, 171, 41, 0.18);
+  border: 1px solid rgba(223, 171, 41, 0.5);
   padding: 1px 4px;
   border-radius: 4px;
   white-space: nowrap;
   font-family: "Outfit", sans-serif;
+  line-height: 1;
   flex-shrink: 0;
 }
 
@@ -1346,10 +1350,11 @@ header {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  line-height: 1.2;
 }
 .guard-bay-status.locked {
   color: #dfab29;
-  font-size: 0.74rem;
+  font-size: 0.72rem;
   font-weight: 800;
   letter-spacing: 0;
 }
