@@ -944,11 +944,9 @@
     if (gData.state.startsWith("moving_to_teller_")) {
       const targetTi = parseInt(gData.state.slice("moving_to_teller_".length), 10);
       const targetPos = getTellerAnchorPos(floorMap, targetTi);
-      let startPos = stationPos;
       const lastTi = gData.lastCollectedTellerIndex;
-      if (typeof lastTi === "number" && lastTi >= 0 && lastTi !== targetTi) {
-        startPos = getTellerAnchorPos(floorMap, lastTi);
-      }
+      const isFirstStop = typeof lastTi !== "number" || lastTi < 0 || lastTi === targetTi;
+      const startPos = isFirstStop ? stationPos : getTellerAnchorPos(floorMap, lastTi);
       const targetAnchor = window.GAME_CONFIG && window.GAME_CONFIG.GUARD_TELLER_ANCHORS ? window.GAME_CONFIG.GUARD_TELLER_ANCHORS[targetTi] || 0.1 * (targetTi + 1) : 0.1 * (targetTi + 1);
       const startAnchor = typeof lastTi === "number" && lastTi >= 0 ? window.GAME_CONFIG && window.GAME_CONFIG.GUARD_TELLER_ANCHORS ? window.GAME_CONFIG.GUARD_TELLER_ANCHORS[lastTi] : 0.1 * (lastTi + 1) : 0;
       const totalDist = Math.abs(targetAnchor - startAnchor);
