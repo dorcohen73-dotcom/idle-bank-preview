@@ -1217,7 +1217,7 @@ header {
   pointer-events: none;
 }
 
-/* Guard Stations Hub (Dedicated Stations Row - Enlarged +30% Spacious) */
+/* Guard Stations Hub (Dedicated Stations Row) */
 .guard-stations-hub {
   display: flex;
   flex-direction: row;
@@ -1241,22 +1241,36 @@ header {
   gap: 0.35rem;
   padding: 0.35rem 0.45rem;
   border-radius: 12px;
-  min-height: 66px; /* +30% enlargement */
-  transition: all 0.25s ease;
+  min-height: 66px;
+  transition: transform 0.15s ease, box-shadow 0.2s ease, border-color 0.2s ease;
   min-width: 0;
   position: relative;
   box-sizing: border-box;
   overflow: visible;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.guard-station-bay:active {
+  transform: scale(0.97);
 }
 .guard-station-bay.active {
   background: linear-gradient(145deg, rgba(30, 41, 59, 0.95), rgb(15, 23, 42));
   border: 2px solid #dfab29;
   box-shadow: 0 0 14px rgba(223, 171, 41, 0.25);
 }
+.guard-station-bay.active:hover {
+  border-color: #ffd700;
+  box-shadow: 0 0 18px rgba(255, 215, 0, 0.4);
+}
 .guard-station-bay.locked {
-  background: rgba(15, 23, 42, 0.6);
-  border: 1.5px dashed rgba(255, 255, 255, 0.2);
-  opacity: 0.75;
+  background: linear-gradient(145deg, rgba(15, 23, 42, 0.8), rgba(10, 15, 29, 0.9));
+  border: 1.5px dashed rgba(223, 171, 41, 0.4);
+  opacity: 0.9;
+}
+.guard-station-bay.locked:hover {
+  border-color: rgba(223, 171, 41, 0.8);
+  box-shadow: 0 0 12px rgba(223, 171, 41, 0.25);
 }
 
 .guard-bay-slot {
@@ -1279,8 +1293,9 @@ header {
 }
 
 .guard-bay-lock-icon {
-  font-size: 18px;
-  color: #94a3b8;
+  font-size: 20px;
+  color: #dfab29;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.6));
 }
 
 .guard-bay-content {
@@ -1288,7 +1303,7 @@ header {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 2px;
+  gap: 3px;
   min-width: 0;
   overflow: hidden;
 }
@@ -1308,8 +1323,19 @@ header {
 }
 
 .guard-station-bay.locked .guard-bay-name {
-  color: #94a3b8;
-  font-weight: 600;
+  color: #e2e8f0;
+  font-weight: 700;
+}
+
+.guard-bay-lock-tag {
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.18);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  padding: 0 3px;
+  border-radius: 4px;
+  white-space: nowrap;
 }
 
 .guard-bay-lvl-pill {
@@ -1333,9 +1359,22 @@ header {
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.guard-bay-status.locked {
-  color: #94a3b8;
-  font-size: 0.65rem;
+
+.guard-bay-price-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 0.64rem;
+  font-weight: 800;
+  color: #ffd700;
+  background: rgba(223, 171, 41, 0.18);
+  border: 1px solid rgba(223, 171, 41, 0.45);
+  padding: 0 4px;
+  border-radius: 4px;
+  white-space: nowrap;
+  font-family: "Outfit", sans-serif;
+  letter-spacing: -0.2px;
+  width: fit-content;
 }
 
 /* Parallel Guards (Couriers) styling */

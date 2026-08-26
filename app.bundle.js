@@ -857,9 +857,40 @@
   }
 
   // ui/draw/security.js
+  var hubClickBound = false;
+  function bindHubClickListener() {
+    if (hubClickBound) return;
+    const hub = document.getElementById("guard-stations-hub");
+    if (!hub) return;
+    hub.addEventListener("click", (e) => {
+      const bay = e.target.closest(".guard-station-bay");
+      if (!bay) return;
+      const gid = bay.getAttribute("data-guard-id");
+      if (gid !== null && gid !== void 0) {
+        if (window.gameAudio && window.gameAudio.playClick) {
+          try {
+            window.gameAudio.playClick();
+          } catch (_) {
+          }
+        }
+        const upgBtn = document.getElementById("tab-btn-upgrades") || document.querySelector('[data-tab="upgrades"]');
+        if (upgBtn) upgBtn.click();
+        setTimeout(() => {
+          const card = document.querySelector(`.upgrade-card[data-type="guard"][data-id="${gid}"], [data-action="unlock-guard"][data-id="${gid}"]`) || document.querySelector(`.upgrades-grid:nth-of-type(2) .upgrade-card:nth-child(${parseInt(gid, 10) + 1})`);
+          if (card) {
+            card.scrollIntoView({ behavior: "smooth", block: "center" });
+            card.classList.add("highlight-glow");
+            setTimeout(() => card.classList.remove("highlight-glow"), 1800);
+          }
+        }, 120);
+      }
+    });
+    hubClickBound = true;
+  }
   function renderGuardStationsHub(lang) {
     const hub = document.getElementById("guard-stations-hub");
     if (!hub || !window.game || !window.game.state || !Array.isArray(window.game.state.guards)) return;
+    bindHubClickListener();
     const t = window.translations && window.translations[lang] ? window.translations[lang] : {};
     const unlockCosts = window.GAME_CONFIG && window.GAME_CONFIG.GUARD_UNLOCK_COSTS || [0, 2500, 7e4];
     const guardsHtml = window.game.state.guards.map((g, idx) => {
@@ -868,7 +899,7 @@
         const isOnDuty = g.state && g.state !== "idle";
         const statusText = isOnDuty ? t.guardOnDuty || "\u05D1\u05E1\u05D9\u05D5\u05E8" : t.guardReady || "\u05DE\u05D5\u05DB\u05DF";
         return `
-                <div class="guard-station-bay active" id="guard-bay-${g.id}" data-guard-id="${g.id}">
+                <div class="guard-station-bay active" id="guard-bay-${g.id}" data-guard-id="${g.id}" title="${t.guardLabel || "\u05D1\u05DC\u05D3\u05E8"} ${g.id + 1}">
                     <div class="guard-bay-slot" id="guard-slot-${g.id}">
                         <span class="guard-bay-slot-base"></span>
                     </div>
@@ -883,15 +914,16 @@
             `;
       } else {
         return `
-                <div class="guard-station-bay locked" id="guard-bay-${g.id}" data-guard-id="${g.id}">
+                <div class="guard-station-bay locked" id="guard-bay-${g.id}" data-guard-id="${g.id}" title="${t.unlockLabel || "\u05E4\u05EA\u05D9\u05D7\u05D4"} ${t.guardLabel || "\u05D1\u05DC\u05D3\u05E8"} ${g.id + 1}">
                     <div class="guard-bay-slot">
                         <span class="guard-bay-lock-icon">\u{1F512}</span>
                     </div>
                     <div class="guard-bay-content">
                         <div class="guard-bay-name-row">
                             <span class="guard-bay-name">${t.guardLabel || "\u05D1\u05DC\u05D3\u05E8"} ${g.id + 1}</span>
+                            <span class="guard-bay-lock-tag">${t.guardLockedLabel || "\u05E0\u05E2\u05D5\u05DC"}</span>
                         </div>
-                        <div class="guard-bay-status locked">${t.guardLockedLabel || "\u05E0\u05E2\u05D5\u05DC"} (${formatMoney2(cost)})</div>
+                        <div class="guard-bay-price-pill">\u{1F4B0} ${formatMoney2(cost)}</div>
                     </div>
                 </div>
             `;
