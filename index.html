@@ -89,7 +89,7 @@
 
     <!-- Application Styles — compiled from scss/main.scss (npm run css), which also
          includes what used to be premium_depts.css and premium_managers.css. -->
-    <link rel="stylesheet" href="style.css?v=d22496cd54">
+    <link rel="stylesheet" href="style.css?v=9e49b9dfda">
 
     <!-- PWA Manifest -->
     <link rel="manifest" href="manifest.json">
@@ -403,35 +403,63 @@
                     <div class="bank-decor potted-plant plant-l" aria-hidden="true">🌿</div>
                     <div class="bank-decor potted-plant plant-r" aria-hidden="true">🌿</div>
 
-                    <!-- Customer Queue Group (Premium Redesign) -->
-                    <div class="queue-wrapper queue-premium-design">
-                        <!-- Top Progress Section -->
-                        <div class="queue-top-section">
-                            <div class="queue-capacity-label" id="queue-capacity-label">0/5</div>
+                    <!-- Customer Queue Group (Ultra-Premium Redesign) -->
+                    <div class="queue-wrapper queue-premium-design" id="queue-wrapper">
+                        <!-- Left: Progress Bar & Status Text -->
+                        <div class="queue-main-content">
                             <div class="queue-progress-bar">
                                 <div class="queue-progress-fill" id="queue-progress-fill" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="תור לקוחות"></div>
                             </div>
+                            <div class="queue-status-section">
+                                <div class="queue-status-badge alert-badge" id="queue-status-badge">
+                                    <span class="queue-status-icon" id="queue-status-icon">!</span>
+                                </div>
+                                <div class="queue-status-text-group">
+                                    <span class="queue-status-text" id="queue-status-text">התור פנוי</span>
+                                    <span class="queue-status-subtext" id="queue-status-subtext">הפעל קמפיין שיווק להבאת לקוחות!</span>
+                                </div>
+                            </div>
                         </div>
 
-                        <!-- Subtitle Status Section -->
-                        <div class="queue-status-section">
-                            <span class="queue-status-text" id="queue-status-text">התור פנוי</span>
-                            <span class="queue-status-icon" id="queue-status-icon"></span>
+                        <!-- Right: Big 3D Glowing Golden Count Circle -->
+                        <div class="queue-capacity-badge-container">
+                            <div class="queue-capacity-glow-ring"></div>
+                            <div class="queue-capacity-label" id="queue-capacity-label">0/5</div>
                         </div>
                     </div>
 
-                    <!-- Advertising Campaign budget control -->
+                    <!-- Advertising Campaign budget control (Ultra-Premium Redesign) -->
                     <div class="advertising-control" id="label-adv-control" title="קמפיין שיווק ממומן להבאת לקוחות">
                         <div class="adv-header">
-                            <span class="adv-title" id="label-adv-title"><span aria-hidden="true">📢</span> קמפיין פרסום
-                                ושיווק</span>
-                            <span class="adv-value" id="adv-budget-display">כבוי</span>
+                            <!-- Right in RTL: Purple Megaphone Badge + Title -->
+                            <div class="adv-title-group">
+                                <div class="adv-icon-badge purple-badge" aria-hidden="true">
+                                    <span>📢</span>
+                                </div>
+                                <span class="adv-title" id="label-adv-title">קמפיין פרסום ושיווק</span>
+                            </div>
+
+                            <!-- Left in RTL: Budget Value + Green Trend Badge -->
+                            <div class="adv-value-group">
+                                <span class="adv-value" id="adv-budget-display">כבוי</span>
+                                <div class="adv-icon-badge green-badge" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#4ade80" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+                                        <polyline points="17 6 23 6 23 12"></polyline>
+                                    </svg>
+                                </div>
+                            </div>
                         </div>
                         <div class="adv-slider-wrapper">
                             <span class="adv-limit" id="label-adv-limit-off">כבוי</span>
-                            <input type="range" id="adv-budget-slider" min="0" max="1000" step="10" value="0"
-                                class="adv-slider" aria-label="תקציב קמפיין פרסום">
-                            <span class="adv-limit" id="label-adv-limit-max">$1,000</span>
+                            <div class="adv-slider-track-container">
+                                <input type="range" id="adv-budget-slider" min="0" max="1000" step="10" value="0"
+                                    class="adv-slider" aria-label="תקציב קמפיין פרסום">
+                                <div class="adv-slider-ticks" aria-hidden="true">
+                                    <span></span><span></span><span></span><span></span><span></span>
+                                </div>
+                            </div>
+                            <span class="adv-limit" id="label-adv-limit-max">$10 אלף</span>
                         </div>
                     </div>
 
@@ -1083,7 +1111,7 @@
     </div>
 
     <script src="config.js?v=20260724_3" defer></script>
-    <script src="locales.js?v=d22496cd54" defer></script>
+    <script src="locales.js?v=9e49b9dfda" defer></script>
     <script src="economy-manager.js?v=20260724_1" defer></script>
     <script src="save-manager.js?v=20260724_2" defer></script>
     <script src="mission-controller.js?v=20260718_1" defer></script>
@@ -1094,7 +1122,7 @@
     <script src="shop-controller.js?v=20260718_5" defer></script>
     <script src="performance-manager.js?v=2" defer></script>
     <script src="game.js?v=20260718_5" defer></script>
-    <script src="app.bundle.js?v=d22496cd54" defer></script>
+    <script src="app.bundle.js?v=9e49b9dfda" defer></script>
     
 </body>
 

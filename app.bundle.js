@@ -1332,9 +1332,10 @@
     const capLabel = DOM_CACHE.queueCapLabel;
     const fillBar = DOM_CACHE.queueFillBar;
     const statText = DOM_CACHE.queueStatText;
+    const statSubtext = DOM_CACHE.queueStatSubtext;
     const statIcon = DOM_CACHE.queueStatIcon;
-    const elQueueZone = DOM_CACHE.queueZone;
-    if (capLabel) {
+    const statBadge = DOM_CACHE.queueStatBadge;
+    if (capLabel && window.game) {
       const queueData = game.getQueueRenderData();
       const maxCap = queueData.capacity;
       const currentLen = queueData.currentLen;
@@ -1345,38 +1346,31 @@
         fillBar.setAttribute("aria-valuenow", Math.round(pct));
       }
       const isTooLow = currentLen <= 1;
-      const isTooHigh = currentLen >= maxCap - 1 || currentLen / maxCap >= 0.8;
+      const isTooHigh = currentLen >= maxCap - 1 || maxCap > 0 && currentLen / maxCap >= 0.8;
       if (isTooLow) {
-        if (elQueueZone) {
-          elQueueZone.classList.remove("status-ok");
-          elQueueZone.classList.add("status-alert");
-        }
-        if (statText) statText.textContent = tObj.queueStatusEmpty || tObj.alertQueueEmpty;
-        if (statIcon) {
-          statIcon.textContent = "\u2755";
-          statIcon.style.color = "var(--danger-red)";
-        }
+        if (statText) statText.textContent = tObj.queueStatusEmpty || "\u05D4\u05EA\u05D5\u05E8 \u05E4\u05E0\u05D5\u05D9";
+        if (statSubtext) statSubtext.textContent = tObj.queueSubtextEmpty || "\u05D4\u05E4\u05E2\u05DC \u05E7\u05DE\u05E4\u05D9\u05D9\u05DF \u05E9\u05D9\u05D5\u05D5\u05E7 \u05DC\u05D4\u05D1\u05D0\u05EA \u05DC\u05E7\u05D5\u05D7\u05D5\u05EA!";
+        if (statIcon) statIcon.textContent = "!";
+        if (statBadge) statBadge.className = "queue-status-badge alert-badge";
       } else if (isTooHigh) {
-        if (elQueueZone) {
-          elQueueZone.classList.remove("status-ok");
-          elQueueZone.classList.add("status-alert");
-        }
         const spotsLeft = maxCap - currentLen;
-        if (statText) statText.textContent = tObj.alertQueueAlmostFull ? tObj.alertQueueAlmostFull(spotsLeft) : spotsLeft + " left";
-        if (statIcon) {
-          statIcon.textContent = "\u2755";
-          statIcon.style.color = "var(--danger-red)";
+        if (statText) {
+          if (spotsLeft <= 0) {
+            statText.textContent = tObj.queueStatusFull || "\u05D4\u05EA\u05D5\u05E8 \u05DE\u05DC\u05D0!";
+          } else if (spotsLeft === 1) {
+            statText.textContent = tObj.queueOneSpotLeft || "\u05E0\u05D5\u05EA\u05E8 \u05DE\u05E7\u05D5\u05DD 1 \u05D1\u05DC\u05D1\u05D3";
+          } else {
+            statText.textContent = tObj.queueSpotsLeft ? tObj.queueSpotsLeft(spotsLeft) : `\u05E0\u05D5\u05EA\u05E8\u05D5 ${spotsLeft} \u05DE\u05E7\u05D5\u05DE\u05D5\u05EA \u05D1\u05DC\u05D1\u05D3`;
+          }
         }
+        if (statSubtext) statSubtext.textContent = tObj.queueSubtextAlmostFull || "\u05D4\u05D6\u05D3\u05DE\u05E0\u05D5\u05EA \u05D0\u05D7\u05E8\u05D5\u05E0\u05D4 \u05DC\u05D4\u05E9\u05E7\u05D9\u05E2!";
+        if (statIcon) statIcon.textContent = "!";
+        if (statBadge) statBadge.className = "queue-status-badge alert-badge full-alert";
       } else {
-        if (elQueueZone) {
-          elQueueZone.classList.remove("status-alert");
-          elQueueZone.classList.add("status-ok");
-        }
-        if (statText) statText.textContent = tObj.queueStatusOk || tObj.alertQueueOk;
-        if (statIcon) {
-          statIcon.textContent = "\u2714";
-          statIcon.style.color = "var(--money-green)";
-        }
+        if (statText) statText.textContent = tObj.queueStatusOk || "\u05EA\u05D5\u05E8 \u05E4\u05E2\u05D9\u05DC \u05D5\u05DE\u05D0\u05D5\u05D6\u05DF";
+        if (statSubtext) statSubtext.textContent = tObj.queueSubtextOk || "\u05E7\u05E6\u05D1 \u05DB\u05E0\u05D9\u05E1\u05EA \u05DC\u05E7\u05D5\u05D7\u05D5\u05EA \u05DE\u05E2\u05D5\u05DC\u05D4";
+        if (statIcon) statIcon.textContent = "\u2714";
+        if (statBadge) statBadge.className = "queue-status-badge ok-badge";
       }
     }
   }
@@ -3135,18 +3129,32 @@
   }
   function updateAdvDisplay2(budget) {
     if (!DOM_CACHE.advDisplay) return;
-    const lang = game.state.language || "en";
-    const tObj = translations[lang];
+    const lang = window.game && game.state && game.state.language || "en";
+    const tObj = window.translations && translations[lang] ? translations[lang] : translations.he || {};
+    const slider = DOM_CACHE.advSlider;
+    if (slider) {
+      const val = parseInt(slider.value) || 0;
+      const max = parseInt(slider.max) || 1e3;
+      const pct = Math.min(100, Math.max(0, val / max * 100));
+      slider.style.setProperty("--slider-pct", `${pct}%`);
+    }
+    const dynamicMax = window.game && typeof game.getAdMaxBudget === "function" ? game.getAdMaxBudget() : 1e4;
+    const maxLimitLabel = document.getElementById("label-adv-limit-max");
+    if (maxLimitLabel) {
+      maxLimitLabel.textContent = formatMoney(dynamicMax);
+    }
     if (budget === 0) {
-      DOM_CACHE.advDisplay.innerText = tObj.advValueOff;
-      DOM_CACHE.advDisplay.classList.remove("insufficient");
+      DOM_CACHE.advDisplay.innerText = tObj.advValueOff || "\u05DB\u05D1\u05D5\u05D9";
+      DOM_CACHE.advDisplay.classList.remove("insufficient", "active-campaign");
     } else {
-      DOM_CACHE.advDisplay.innerText = formatMoney(budget) + tObj.perMinute;
-      if (!game.state.advActive) {
-        DOM_CACHE.advDisplay.innerText += tObj.advSuspended;
+      DOM_CACHE.advDisplay.innerText = formatMoney(budget) + (tObj.perMinute || " \u05DC\u05D3\u05E7\u05D4");
+      if (window.game && game.state && !game.state.advActive) {
+        DOM_CACHE.advDisplay.innerText += tObj.advSuspended || " [\u05DE\u05D5\u05E9\u05D4\u05D4]";
         DOM_CACHE.advDisplay.classList.add("insufficient");
+        DOM_CACHE.advDisplay.classList.remove("active-campaign");
       } else {
         DOM_CACHE.advDisplay.classList.remove("insufficient");
+        DOM_CACHE.advDisplay.classList.add("active-campaign");
       }
     }
   }
@@ -6769,6 +6777,9 @@ ${stack}` : String(message);
         window.DOM_CACHE.queueFillBar = document.getElementById("queue-progress-fill");
         window.DOM_CACHE.queueStatText = document.getElementById("queue-status-text");
         window.DOM_CACHE.queueStatIcon = document.getElementById("queue-status-icon");
+        window.DOM_CACHE.queueStatSubtext = document.getElementById("queue-status-subtext");
+        window.DOM_CACHE.queueStatBadge = document.getElementById("queue-status-badge");
+        window.DOM_CACHE.queueWrapper = document.getElementById("queue-wrapper");
         if (typeof window.IdleBankGame !== "function") {
           console.error("IdleBankGame class is not defined. game.js may have failed to load.");
           throw new Error("IdleBankGame not defined \u2014 caught by boot try/catch");
