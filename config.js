@@ -32,7 +32,7 @@ const GAME_CONFIG = {
     GUARD_AUTO_SPEED_FACTOR: 0.7,
     GUARD_SKILL_SPEED_DECAY: 0.04, // Alon's level upgrades: -4% per level
     GUARD_SPEED_GOLD_UPGRADE_FACTOR: 0.10, // Guard speed gold upgrade: -10% per level
-    GUARD_WALK_ANIM_DURATION: 1.35, // Natural, calm walk time per counter (seconds)
+    GUARD_WALK_ANIM_DURATION: 1.40, // Natural, calm human walk pace per counter (seconds) // Natural, calm walk time per counter (seconds)
     GUARD_COLLECT_MIN_DURATION: 0.90, // Substantial, visible pause when collecting cash at counter
     GUARD_COLLECT_MAX_DURATION: 1.80, // Substantial, visible pause when picking up full capacity
 

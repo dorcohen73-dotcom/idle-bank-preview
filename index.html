@@ -89,7 +89,7 @@
 
     <!-- Application Styles — compiled from scss/main.scss (npm run css), which also
          includes what used to be premium_depts.css and premium_managers.css. -->
-    <link rel="stylesheet" href="style.css?v=0d3677d38c">
+    <link rel="stylesheet" href="style.css?v=32becb3e63">
 
     <!-- PWA Manifest -->
     <link rel="manifest" href="manifest.json">
@@ -756,6 +756,14 @@
                 </button>
             </div>
 
+                        <!-- Haptics (Vibration) Toggle -->
+            <div class="settings-theme-section" style="margin-top: 0.5rem;">
+                <div class="reset-confirm-wrapper" style="justify-content: center; margin-bottom: 0;">
+                    <input type="checkbox" id="settings-haptics-checkbox" checked class="luxury-checkbox">
+                    <label for="settings-haptics-checkbox" id="settings-haptics-label">רטט במגע</label>
+                </div>
+            </div>
+
             <!-- Notifications Toggle -->
             <div class="settings-theme-section" style="margin-top: 0.5rem;">
                 <div class="reset-confirm-wrapper" style="justify-content: center; margin-bottom: 0;">
@@ -814,34 +822,77 @@
         </div>
     </div>
 
-    <!-- Analytics Dashboard Modal -->
+        <!-- Analytics Dashboard Modal (AAA Masterpiece Reference Exact) -->
     <div class="modal-overlay" id="analytics-modal" role="dialog" aria-modal="true"
         aria-labelledby="analytics-modal-title">
-        <div class="modal-box analytics-modal-box">
-            <div class="modal-icon" aria-hidden="true">📊</div>
-            <h2 class="modal-title" id="analytics-modal-title">דוח ביצועים אנליטי</h2>
-            <div class="analytics-content">
-                <div class="analytic-group">
-                    <h3 id="analytics-title-general">נתונים כלליים</h3>
-                    <div class="analytic-stat"><span id="analytics-label-eps">סך רווח לשנייה:</span> <strong
-                            id="analytics-total-eps">$0</strong></div>
-                    <div class="analytic-stat"><span id="analytics-label-vault">ניצולת כספת:</span> <strong
-                            id="analytics-vault-util">0%</strong></div>
+        <div class="modal-box analytics-modal-box luxury-analytics-modal">
+            <!-- Top Tech Constellation Background Accents -->
+            <div class="analytics-tech-bg-lines" aria-hidden="true">
+                <span class="tech-dot dot-1"></span>
+                <span class="tech-line line-1"></span>
+                <span class="tech-dot dot-2"></span>
+                <span class="tech-line line-2"></span>
+                <span class="tech-dot dot-3"></span>
+            </div>
+
+            <!-- Top Close X Button -->
+            <button class="analytics-modal-close-x" id="analytics-close-x" aria-label="סגור דוח">✕</button>
+
+            <!-- Header Hero -->
+            <div class="modal-header-hero">
+                <div class="analytics-icon-badge" aria-hidden="true">
+                    <span class="analytics-hero-glyph">📊</span>
                 </div>
-                <div class="analytic-group">
-                    <h3 id="analytics-title-tellers">תפוקת כספרים</h3>
-                    <div id="analytics-tellers-list">
-                        <!-- Tellers EPS inserted dynamically -->
-                    </div>
-                </div>
-                <div class="analytic-group">
-                    <h3 id="analytics-title-warnings">אזהרות וצווארי בקבוק</h3>
-                    <div id="analytics-warnings-list">
-                        <!-- Warnings inserted dynamically -->
+                <div class="analytics-title-group">
+                    <h2 class="modal-title luxury-modal-title" id="analytics-modal-title">
+                        <span id="analytics-modal-title-text">דוח ביצועים אנליטי</span>
+                    </h2>
+                    <div class="analytics-live-status-pill">
+                        <span class="live-pulse-dot"></span>
+                        <span id="analytics-branch-name-live">נתונים חיים בזמן אמת</span>
                     </div>
                 </div>
             </div>
-            <button class="modal-close-btn" id="analytics-close-btn">סגור</button>
+            
+            <div class="analytics-content-scroll">
+                <!-- Tellers Performance Breakdown -->
+                <div class="analytics-section-card tellers-section-card">
+                    <div class="analytics-section-header">
+                        <span class="analytics-section-icon-box">📊</span>
+                        <h3 class="analytics-section-title" id="analytics-title-tellers">תפוקת עמדות כספרים</h3>
+                    </div>
+                    <div class="analytics-tellers-list" id="analytics-tellers-list">
+                        <!-- Tellers rank-sorted inserted dynamically -->
+                    </div>
+                </div>
+
+                <!-- Bottom 2-Column Split: Operations Balance + Business Advisor -->
+                <div class="analytics-bottom-split">
+                    <!-- Operations Balance Analyzer -->
+                    <div class="analytics-section-card ops-flow-card">
+                        <div class="analytics-section-header">
+                            <span class="analytics-section-icon-box">🛡️</span>
+                            <h3 class="analytics-section-title" id="analytics-title-ops">איזון שרשרת תפעול</h3>
+                        </div>
+                        <div class="ops-flow-grid" id="analytics-ops-flow">
+                            <!-- Operations flow rows inserted dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Business Advisor & Bottlenecks -->
+                    <div class="analytics-section-card advisor-card-wrapper">
+                        <div class="analytics-section-header">
+                            <span class="analytics-section-icon-box">⭐</span>
+                            <h3 class="analytics-section-title" id="analytics-title-warnings">יועץ עסקי והתראות</h3>
+                        </div>
+                        <div class="analytics-warnings-list" id="analytics-warnings-list">
+                            <!-- Smart actionable advisor card inserted dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button class="modal-close-btn luxury-analytics-close-btn" id="analytics-close-btn">סגור דוח</button>
         </div>
     </div>
 
@@ -1093,7 +1144,7 @@
     </div>
 
     <script src="config.js?v=20260724_3" defer></script>
-    <script src="locales.js?v=0d3677d38c" defer></script>
+    <script src="locales.js?v=32becb3e63" defer></script>
     <script src="economy-manager.js?v=20260724_1" defer></script>
     <script src="save-manager.js?v=20260724_2" defer></script>
     <script src="mission-controller.js?v=20260718_1" defer></script>
@@ -1104,7 +1155,7 @@
     <script src="shop-controller.js?v=20260718_5" defer></script>
     <script src="performance-manager.js?v=2" defer></script>
     <script src="game.js?v=20260718_5" defer></script>
-    <script src="app.bundle.js?v=0d3677d38c" defer></script>
+    <script src="app.bundle.js?v=32becb3e63" defer></script>
     
 </body>
 

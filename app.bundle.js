@@ -1503,6 +1503,296 @@
   window.clearActiveCoins = clearActiveCoins;
   window.activeCoins = activeCoins;
 
+  // audio.js
+  var lastHapticTimestamp = 0;
+  function hapticTap(duration = 9) {
+    try {
+      if (typeof window !== "undefined" && window.game && window.game.state && window.game.state.hapticsEnabled === false) {
+        return;
+      }
+      const now = Date.now();
+      if (now - lastHapticTimestamp < 200) {
+        return;
+      }
+      lastHapticTimestamp = now;
+      if (typeof navigator !== "undefined" && typeof navigator.vibrate === "function") {
+        navigator.vibrate(duration || 9);
+      }
+    } catch (_e) {
+    }
+  }
+  if (typeof window !== "undefined") {
+    window.hapticTap = hapticTap;
+  }
+  var AudioEngine = class {
+    constructor() {
+      this.ctx = null;
+      try {
+        this.isMuted = window.localStorage.getItem("idle_bank_muted") === "true";
+      } catch {
+        this.isMuted = false;
+      }
+      this.volume = 0.15;
+    }
+    init() {
+      if (this.ctx) return;
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        this.ctx = new AudioCtx();
+      } catch (e) {
+        console.warn("Web Audio API is not supported in this browser.", e);
+      }
+    }
+    toggleMute() {
+      this.isMuted = !this.isMuted;
+      try {
+        window.localStorage.setItem("idle_bank_muted", this.isMuted);
+      } catch (e) {
+        console.warn("Could not save mute state:", e);
+      }
+      if (this.isMuted) {
+        this.stopMusic();
+      } else {
+        this.startMusic();
+      }
+      return this.isMuted;
+    }
+    ensureRunning(callback) {
+      if (!this.ctx) this.init();
+      if (this.isMuted || !this.ctx) return;
+      if (typeof document !== "undefined" && document.hidden) return;
+      if (this.ctx.state === "suspended") {
+        this.ctx.resume().then(() => {
+          if (this.ctx.state === "running") {
+            callback();
+          }
+        }).catch((e) => console.warn("AudioContext resume failed:", e));
+      } else {
+        callback();
+      }
+    }
+    suspend() {
+      if (this.ctx && this.ctx.state === "running") {
+        this.ctx.suspend().catch(() => {
+        });
+      }
+    }
+    resume() {
+      if (this.ctx && this.ctx.state === "suspended") {
+        this.ctx.resume().catch(() => {
+        });
+      }
+    }
+    createGainNode(duration, startVal = this.volume) {
+      if (!this.ctx) this.init();
+      if (this.isMuted || !this.ctx) return null;
+      const gainNode = this.ctx.createGain();
+      gainNode.gain.setValueAtTime(startVal, this.ctx.currentTime);
+      gainNode.gain.linearRampToValueAtTime(1e-4, this.ctx.currentTime + duration);
+      gainNode.connect(this.ctx.destination);
+      return gainNode;
+    }
+    triggerHaptic(style = "light") {
+      try {
+        if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Haptics) {
+          if (style === "impact") {
+            window.Capacitor.Plugins.Haptics.impact({ style: "LIGHT" });
+          } else {
+            window.Capacitor.Plugins.Haptics.selectionChanged();
+          }
+        } else if (typeof navigator !== "undefined" && typeof navigator.vibrate === "function") {
+          navigator.vibrate(15);
+        }
+      } catch (_e) {
+      }
+    }
+    playClick() {
+      this.triggerHaptic("light");
+      this.ensureRunning(() => {
+        const gain = this.createGainNode(0.1, this.volume * 0.5);
+        if (!gain) return;
+        const osc = this.ctx.createOscillator();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(600, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(200, this.ctx.currentTime + 0.1);
+        osc.connect(gain);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.1);
+        osc.onended = () => {
+          osc.disconnect();
+          gain.disconnect();
+        };
+      });
+    }
+    playCoin() {
+      this.triggerHaptic("impact");
+      this.ensureRunning(() => {
+        const gain = this.createGainNode(0.3, this.volume);
+        if (!gain) return;
+        const osc1 = this.ctx.createOscillator();
+        const osc2 = this.ctx.createOscillator();
+        osc1.type = "sine";
+        osc1.frequency.setValueAtTime(987.77, this.ctx.currentTime);
+        osc2.type = "sine";
+        osc2.frequency.setValueAtTime(1318.51, this.ctx.currentTime);
+        osc1.connect(gain);
+        osc2.connect(gain);
+        osc1.start();
+        osc2.start();
+        osc1.stop(this.ctx.currentTime + 0.3);
+        osc2.stop(this.ctx.currentTime + 0.3);
+        let endedCount = 0;
+        const cleanup = () => {
+          endedCount++;
+          if (endedCount === 2) {
+            osc1.disconnect();
+            osc2.disconnect();
+            gain.disconnect();
+          }
+        };
+        osc1.onended = cleanup;
+        osc2.onended = cleanup;
+      });
+    }
+    playChaChing() {
+      this.ensureRunning(() => {
+        const gain = this.createGainNode(0.6, this.volume * 1.5);
+        if (!gain) return;
+        const now = this.ctx.currentTime;
+        const bufferSize = this.ctx.sampleRate * 0.15;
+        const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+          data[i] = Math.random() * 2 - 1;
+        }
+        const noiseNode = this.ctx.createBufferSource();
+        noiseNode.buffer = buffer;
+        const filter = this.ctx.createBiquadFilter();
+        filter.type = "bandpass";
+        filter.frequency.value = 1e3;
+        noiseNode.connect(filter);
+        filter.connect(gain);
+        const osc1 = this.ctx.createOscillator();
+        const osc2 = this.ctx.createOscillator();
+        osc1.type = "sine";
+        osc1.frequency.setValueAtTime(1500, now);
+        osc1.frequency.exponentialRampToValueAtTime(1600, now + 0.4);
+        osc2.type = "sine";
+        osc2.frequency.setValueAtTime(1900, now);
+        osc2.frequency.exponentialRampToValueAtTime(2e3, now + 0.4);
+        osc1.connect(gain);
+        osc2.connect(gain);
+        noiseNode.start(now);
+        noiseNode.stop(now + 0.15);
+        osc1.start(now + 0.05);
+        osc1.stop(now + 0.5);
+        osc2.start(now + 0.08);
+        osc2.stop(now + 0.6);
+        let endedCount = 0;
+        const cleanup = () => {
+          endedCount++;
+          if (endedCount === 3) {
+            noiseNode.disconnect();
+            filter.disconnect();
+            osc1.disconnect();
+            osc2.disconnect();
+            gain.disconnect();
+          }
+        };
+        noiseNode.onended = cleanup;
+        osc1.onended = cleanup;
+        osc2.onended = cleanup;
+      });
+    }
+    playUnlock() {
+      this.ensureRunning(() => {
+        const gain = this.createGainNode(0.8, this.volume * 1.2);
+        if (!gain) return;
+        const now = this.ctx.currentTime;
+        const notes = [261.63, 329.63, 392, 523.25, 659.25, 783.99, 1046.5];
+        let oscsEnded = 0;
+        const totalOscs = notes.length;
+        notes.forEach((freq, index) => {
+          const osc = this.ctx.createOscillator();
+          osc.type = "triangle";
+          osc.frequency.setValueAtTime(freq, now + index * 0.08);
+          const noteGain = this.ctx.createGain();
+          noteGain.gain.setValueAtTime(this.volume * 0.8, now + index * 0.08);
+          noteGain.gain.exponentialRampToValueAtTime(1e-3, now + index * 0.08 + 0.4);
+          osc.connect(noteGain);
+          noteGain.connect(this.ctx.destination);
+          osc.start(now + index * 0.08);
+          osc.stop(now + index * 0.08 + 0.45);
+          osc.onended = () => {
+            osc.disconnect();
+            noteGain.disconnect();
+            oscsEnded++;
+            if (oscsEnded === totalOscs) {
+              gain.disconnect();
+            }
+          };
+        });
+      });
+    }
+    startMusic() {
+      if (this.musicInterval) return;
+      this.ensureRunning(() => {
+        let beat = 0;
+        const chords = [
+          [130.81, 164.81, 196, 246.94],
+          // Cmaj7
+          [110, 130.81, 164.81, 196],
+          // Am7
+          [146.83, 174.61, 220, 261.63],
+          // Dm7
+          [98, 123.47, 146.83, 174.61]
+          // G7
+        ];
+        this.musicInterval = setInterval(() => {
+          if (!this.ctx || this.isMuted || typeof document !== "undefined" && document.hidden || this.ctx.state === "suspended") return;
+          const chordIdx = Math.floor(beat / 4) % 4;
+          const chord = chords[chordIdx];
+          if (beat % 2 === 0) {
+            this._playTone(chord[0] / 2, "triangle", 0.4, 0.1, 0.5, this.volume * 1.5);
+          }
+          if (beat % 2 === 1) {
+            chord.slice(1).forEach((freq) => {
+              this._playTone(freq, "sine", 0.2, 0.05, 0.2, this.volume * 0.4);
+            });
+          }
+          if (Math.random() > 0.4) {
+            const melodyScale = [261.63, 293.66, 329.63, 392, 440, 523.25];
+            const note = melodyScale[Math.floor(Math.random() * melodyScale.length)];
+            this._playTone(note * 2, "sine", 0.3, 0.1, 0.4, this.volume * 0.3);
+          }
+          beat++;
+        }, 600);
+      });
+    }
+    stopMusic() {
+      if (this.musicInterval) {
+        clearInterval(this.musicInterval);
+        this.musicInterval = null;
+      }
+    }
+    _playTone(freq, type, duration, attack, release, maxVol) {
+      if (!this.ctx) return;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = type;
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0, this.ctx.currentTime);
+      gain.gain.linearRampToValueAtTime(maxVol, this.ctx.currentTime + attack);
+      gain.gain.exponentialRampToValueAtTime(1e-3, this.ctx.currentTime + duration + release);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start(this.ctx.currentTime);
+      osc.stop(this.ctx.currentTime + duration + release);
+    }
+  };
+  var gameAudio = new AudioEngine();
+  window.gameAudio = gameAudio;
+
   // ui/events/focus-trap.js
   var _focusTrapHandlers = /* @__PURE__ */ new Map();
   var _previouslyFocused = /* @__PURE__ */ new Map();
@@ -2060,86 +2350,215 @@
     const modal = document.getElementById("analytics-modal");
     if (!modal) return;
     const lang = game.state && game.state.language || "en";
-    const tObj = translations[lang] || translations.en;
-    const aTitle = document.getElementById("analytics-modal-title");
-    if (aTitle) aTitle.innerText = tObj.analyticsModalTitle || tObj.analyticsTitle || "Performance Analytics Report";
-    const aGen = document.getElementById("analytics-title-general");
-    if (aGen) aGen.innerText = tObj.analyticsTitleGeneral || tObj.analyticsGeneralStats || "General Overview";
-    const aEps = document.getElementById("analytics-label-eps");
-    if (aEps) aEps.innerText = tObj.analyticsLabelEps || tObj.analyticsTotalEps || "Total Profit / Sec:";
-    const aVault = document.getElementById("analytics-label-vault");
-    if (aVault) aVault.innerText = tObj.analyticsLabelVault || tObj.analyticsVaultUtil || "Vault Utilization:";
+    const tObj = translations[lang] || translations.he || translations.en || {};
+    const aTitle = document.getElementById("analytics-modal-title-text") || document.getElementById("analytics-modal-title");
+    if (aTitle) aTitle.innerText = tObj.analyticsModalTitle || "\u05D3\u05D5\u05D7 \u05D1\u05D9\u05E6\u05D5\u05E2\u05D9\u05DD \u05D0\u05E0\u05DC\u05D9\u05D8\u05D9";
+    const branchNameEl = document.getElementById("analytics-branch-name-live");
+    if (branchNameEl) {
+      branchNameEl.innerText = tObj.analyticsLiveHeader || "\u05E0\u05EA\u05D5\u05E0\u05D9\u05DD \u05D7\u05D9\u05D9\u05DD \u05D1\u05D6\u05DE\u05DF \u05D0\u05DE\u05EA";
+    }
     const aTellers = document.getElementById("analytics-title-tellers");
-    if (aTellers) aTellers.innerText = tObj.analyticsTitleTellers || "Tellers Output";
+    if (aTellers) aTellers.innerText = tObj.analyticsTitleTellers || "\u05EA\u05E4\u05D5\u05E7\u05EA \u05E2\u05DE\u05D3\u05D5\u05EA \u05DB\u05E1\u05E4\u05E8\u05D9\u05DD";
+    const aOps = document.getElementById("analytics-title-ops");
+    if (aOps) aOps.innerText = tObj.analyticsOpsFlowTitle || "\u05D0\u05D9\u05D6\u05D5\u05DF \u05E9\u05E8\u05E9\u05E8\u05EA \u05EA\u05E4\u05E2\u05D5\u05DC";
     const aWarn = document.getElementById("analytics-title-warnings");
-    if (aWarn) aWarn.innerText = tObj.analyticsTitleWarnings || tObj.analyticsBottlenecksTitle || "Warnings & Bottlenecks";
+    if (aWarn) aWarn.innerText = tObj.analyticsTitleWarnings || "\u05D9\u05D5\u05E2\u05E5 \u05E2\u05E1\u05E7\u05D9 \u05D5\u05D4\u05EA\u05E8\u05D0\u05D5\u05EA";
     const aClose = document.getElementById("analytics-close-btn");
-    if (aClose) aClose.innerText = tObj.analyticsCloseBtn || tObj.close || "Close";
-    document.getElementById("analytics-total-eps").innerText = formatMoney(game.getEarningsPerSecond());
+    if (aClose) aClose.innerText = tObj.analyticsCloseBtn || "\u05E1\u05D2\u05D5\u05E8 \u05D3\u05D5\u05D7";
+    const totalEps = game.getEarningsPerSecond();
     const vCap = game.getVaultCapacity(game.state.vault.level);
-    const vaultUtil = Math.round(game.state.vault.cashStored / vCap * 100);
-    document.getElementById("analytics-vault-util").innerText = `${vaultUtil}%`;
+    const vaultUtil = vCap > 0 ? Math.min(100, Math.round(game.state.vault.cashStored / vCap * 100)) : 0;
+    const tellerZoomMap = {
+      1: { scale: 3.4, origin: "55% 42%" },
+      2: { scale: 3.4, origin: "50% 44%" },
+      3: { scale: 3.6, origin: "61% 35%" },
+      4: { scale: 3.5, origin: "66% 33%" },
+      5: { scale: 3.4, origin: "51% 41%" },
+      6: { scale: 3.6, origin: "64% 36%" },
+      7: { scale: 3.5, origin: "50% 44%" },
+      8: { scale: 3.4, origin: "41% 43%" }
+    };
+    const currentBaseReward = game.getCurrentBaseReward();
+    const totalMultiplier = game.getTotalMultiplier();
+    const activeTellers = game.state.tellers.filter((t) => t.unlocked).map((t) => {
+      const speed = game.getTellerSpeed(t.level);
+      const reward = currentBaseReward * totalMultiplier;
+      const tellerEps = speed > 0 ? reward / speed : 0;
+      const pctOfTotal = totalEps > 0 ? Math.min(100, Math.round(tellerEps / totalEps * 100)) : 0;
+      return { ...t, tellerEps, pctOfTotal };
+    });
+    const sortedTellers = [...activeTellers].sort((a, b) => {
+      if (b.tellerEps !== a.tellerEps) {
+        return b.tellerEps - a.tellerEps;
+      }
+      return b.level - a.level;
+    });
     const tellersListEl = document.getElementById("analytics-tellers-list");
     tellersListEl.innerHTML = "";
     const tellersFragment = document.createDocumentFragment();
-    const currentBaseReward = game.getCurrentBaseReward();
-    const totalMultiplier = game.getTotalMultiplier();
-    game.state.tellers.forEach((t) => {
-      if (t.unlocked) {
-        const row = document.createElement("div");
-        row.className = "analytic-teller-row";
-        const speed = game.getTellerSpeed(t.level);
-        const reward = currentBaseReward * totalMultiplier;
-        const tellerEps = reward / speed;
-        row.innerHTML = `
-                <span>${tObj.tellerLabel} ${t.id + 1} (${tObj.levelLabel} ${t.level}):</span>
-                <strong>${formatMoney(tellerEps)}/${tObj.secLabel || "sec"}</strong>
-            `;
-        tellersFragment.appendChild(row);
+    const lvlPrefix = tObj.levelLabelShort || tObj.levelLabel || "\u05E8\u05DE\u05D4";
+    sortedTellers.forEach((t, index) => {
+      const rank = index + 1;
+      const row = document.createElement("div");
+      row.className = `analytic-teller-card-aaa rank-${rank}`;
+      const tellerImgNum = t.id % 8 + 1;
+      const zoom = tellerZoomMap[tellerImgNum] || { scale: 3.2, origin: "50% 40%" };
+      let rankBadgeClass = "rank-badge-other";
+      let ringClass = "ring-gray";
+      if (rank === 1) {
+        rankBadgeClass = "rank-badge-gold";
+        ringClass = "ring-gold";
+      } else if (rank === 2) {
+        rankBadgeClass = "rank-badge-silver";
+        ringClass = "ring-silver";
+      } else if (rank === 3) {
+        rankBadgeClass = "rank-badge-bronze";
+        ringClass = "ring-bronze";
+      } else if (rank === 4) {
+        ringClass = "ring-amber";
+      } else if (rank === 5) {
+        ringClass = "ring-green";
       }
+      row.innerHTML = `
+            <div class="teller-card-main-row">
+                <div class="teller-rank-shield ${rankBadgeClass}">
+                    <span>${rank}</span>
+                </div>
+                <div class="teller-portrait-wrapper-zoomed ${ringClass}">
+                    <img src="images/teller-${tellerImgNum}.png" alt="Teller ${t.id + 1}" class="teller-close-up-img" style="transform: scale(${zoom.scale}); transform-origin: ${zoom.origin};" onerror="this.src='images/manager-1.png'">
+                    <span class="teller-status-dot-active" title="\u05E4\u05E2\u05D9\u05DC"></span>
+                </div>
+                <div class="teller-meta-col">
+                    <div class="teller-name-line">
+                        <strong class="teller-real-name">${tObj.tellerLabel || "\u05DB\u05E1\u05E4\u05E8"} ${t.id + 1}</strong>
+                        <span class="teller-lvl-badge">${lvlPrefix} ${t.level}</span>
+                    </div>
+                    <div class="teller-bar-container">
+                        <div class="teller-bar-track">
+                            <div class="teller-bar-fill" style="width: ${t.pctOfTotal}%"></div>
+                        </div>
+                        <span class="teller-share-label">${t.pctOfTotal}% ${tObj.ofTotalShare || "\u05DE\u05E1\u05DA \u05D4\u05E8\u05D5\u05D5\u05D7"}</span>
+                    </div>
+                </div>
+                <div class="teller-yield-col">
+                    <div class="teller-yield-val text-green">${formatMoney(t.tellerEps)}</div>
+                    <span class="teller-yield-unit">${tObj.perSecShort || "/\u05E9\u05E0'"}</span>
+                </div>
+            </div>
+        `;
+      tellersFragment.appendChild(row);
     });
+    if (activeTellers.length === 0) {
+      const emptyDiv = document.createElement("div");
+      emptyDiv.className = "analytic-empty-state";
+      emptyDiv.innerText = tObj.noActiveTellers || "\u05D0\u05D9\u05DF \u05DB\u05E1\u05E4\u05E8\u05D9\u05DD \u05E4\u05E2\u05D9\u05DC\u05D9\u05DD \u05DB\u05E8\u05D2\u05E2";
+      tellersFragment.appendChild(emptyDiv);
+    }
     tellersListEl.appendChild(tellersFragment);
+    const qCap = game.getQueueCapacity(game.state.queueUpgradeLevel || 1);
+    const guardsSlow = game.state.tellers.some((t) => t.unlocked && t.cashStored >= game.getTellerCapacity(t.level) * 0.8);
+    const opsFlowEl = document.getElementById("analytics-ops-flow");
+    if (opsFlowEl) {
+      const qCount = game.customerQueue.length;
+      const isQueueOk = qCount < qCap * 0.7;
+      const isGuardsOk = !guardsSlow;
+      const isVaultOk = vaultUtil < 85;
+      opsFlowEl.innerHTML = `
+            <div class="ops-flow-row ${isQueueOk ? "ok" : "busy"}">
+                <div class="ops-flow-left">
+                    <span class="ops-flow-dot"></span>
+                    <span class="ops-flow-icon">\u{1F465}</span>
+                    <span class="ops-flow-title">${tObj.opsQueueTitle || "\u05EA\u05D5\u05E8 \u05DC\u05E7\u05D5\u05D7\u05D5\u05EA"}:</span>
+                </div>
+                <div class="ops-flow-right">
+                    <strong class="ops-flow-val">${qCount}/${qCap}</strong>
+                    <span class="ops-flow-subtag">${isQueueOk ? tObj.opsFlowSmooth || "\u05D6\u05E8\u05D9\u05DE\u05D4 \u05E4\u05E0\u05D5\u05D9\u05D4 \u2714" : tObj.opsFlowCrowded || "\u05E2\u05D5\u05DE\u05E1 \u26A0\uFE0F"}</span>
+                </div>
+            </div>
+            <div class="ops-flow-row ${isGuardsOk ? "ok" : "busy"}">
+                <div class="ops-flow-left">
+                    <span class="ops-flow-dot"></span>
+                    <span class="ops-flow-icon">\u{1F69A}</span>
+                    <span class="ops-flow-title">${tObj.opsGuardsTitle || "\u05E4\u05D9\u05E0\u05D5\u05D9 \u05D1\u05DC\u05D3\u05E8\u05D9\u05DD"}:</span>
+                </div>
+                <div class="ops-flow-right">
+                    <strong class="ops-flow-val">100%</strong>
+                    <span class="ops-flow-subtag">${isGuardsOk ? tObj.opsGuardsFast || "\u05E4\u05D9\u05E0\u05D5\u05D9 \u05D1\u05D6\u05DE\u05DF \u2714" : tObj.opsGuardsDelay || "\u05E2\u05D9\u05DB\u05D5\u05D1 \u26A0\uFE0F"}</span>
+                </div>
+            </div>
+        `;
+    }
     const warningsListEl = document.getElementById("analytics-warnings-list");
     warningsListEl.innerHTML = "";
-    const warnings = [];
-    if (game.state.vault.cashStored >= vCap) {
-      warnings.push(tObj.analyticsWarningVaultFull);
-    }
-    const qCap = game.getQueueCapacity(game.state.queueUpgradeLevel || 1);
-    if (game.customerQueue.length >= qCap) {
-      warnings.push(tObj.analyticsWarningQueueFull);
-    }
-    const anyTellerFull = game.state.tellers.some((t) => t.unlocked && t.cashStored >= game.getTellerCapacity(t.level) * 0.8);
-    if (anyTellerFull) {
-      warnings.push(tObj.analyticsWarningGuardsSlow);
-    }
-    if (game.customerQueue.length >= 5) {
-      warnings.push(tObj.analyticsWarningTellersSlow);
-    }
-    if (warnings.length === 0) {
-      warningsListEl.innerHTML = `<div class="analytic-no-warning">${tObj.analyticsNoBottlenecks}</div>`;
+    let tip = null;
+    if (game.state.vault.cashStored >= vCap * 0.85) {
+      tip = {
+        icon: "\u{1F3E6}",
+        type: "warning",
+        title: tObj.advisorTipUpgradeVaultTitle || "\u05E9\u05D3\u05E8\u05D2 \u05D0\u05EA \u05D4\u05DB\u05E1\u05E4\u05EA \u{1F3E6}",
+        desc: tObj.advisorTipUpgradeVaultDesc || "\u05D4\u05D2\u05D3\u05DC \u05D0\u05EA \u05E7\u05D9\u05D1\u05D5\u05DC\u05EA \u05D4\u05DB\u05E1\u05E4\u05EA \u05DC\u05D0\u05D2\u05D9\u05E8\u05EA \u05E8\u05D5\u05D5\u05D7\u05D9\u05DD \u05D2\u05D3\u05D5\u05DC\u05D4 \u05D9\u05D5\u05EA\u05E8."
+      };
+    } else if (game.customerQueue.length >= qCap * 0.75) {
+      tip = {
+        icon: "\u26A1",
+        type: "alert",
+        title: tObj.advisorTipUpgradeTellerTitle || "\u05E9\u05D3\u05E8\u05D2 \u05E2\u05DE\u05D3\u05D5\u05EA \u05DB\u05E1\u05E4\u05E8\u05D9\u05DD \u26A1",
+        desc: tObj.advisorTipUpgradeTellerDesc || "\u05E9\u05D3\u05E8\u05D5\u05D2 \u05E2\u05DE\u05D3\u05D5\u05EA \u05D4\u05DB\u05E1\u05E4\u05E8\u05D9\u05DD \u05DE\u05E2\u05DC\u05D4 \u05D0\u05EA \u05DE\u05D4\u05D9\u05E8\u05D5\u05EA \u05D4\u05D8\u05D9\u05E4\u05D5\u05DC \u05D5\u05D4\u05E8\u05D5\u05D5\u05D7 \u05DC\u05E9\u05E0\u05D9\u05D9\u05D4."
+      };
+    } else if (guardsSlow) {
+      tip = {
+        icon: "\u{1F3C3}",
+        type: "warning",
+        title: tObj.advisorTipUpgradeGuardsTitle || "\u05E9\u05D3\u05E8\u05D2 \u05DE\u05D4\u05D9\u05E8\u05D5\u05EA \u05D1\u05DC\u05D3\u05E8\u05D9\u05DD \u{1F3C3}",
+        desc: tObj.advisorTipUpgradeGuardsDesc || "\u05E9\u05D3\u05E8\u05D5\u05D2 \u05D4\u05D1\u05DC\u05D3\u05E8\u05D9\u05DD \u05D9\u05E4\u05E0\u05D4 \u05DB\u05E1\u05E3 \u05DE\u05D3\u05DC\u05E4\u05E7\u05D9 \u05D4\u05DB\u05E1\u05E4\u05E8\u05D9\u05DD \u05DE\u05D4\u05E8 \u05D9\u05D5\u05EA\u05E8 \u05DC\u05DB\u05E1\u05E4\u05EA."
+      };
+    } else if (game.state.tellers.some((t) => !t.unlocked)) {
+      tip = {
+        icon: "\u{1F680}",
+        type: "action",
+        title: tObj.advisorTipUnlockTellerTitle || "\u05E4\u05EA\u05D7 \u05DB\u05E1\u05E4\u05E8 \u05E0\u05D5\u05E1\u05E3 \u{1F680}",
+        desc: tObj.advisorTipUnlockTellerDesc || "\u05E4\u05EA\u05D9\u05D7\u05EA \u05E2\u05DE\u05D3\u05EA \u05DB\u05E1\u05E4\u05E8 \u05D7\u05D3\u05E9\u05D4 \u05EA\u05D6\u05E0\u05D9\u05E7 \u05D0\u05EA \u05D6\u05E8\u05D9\u05DE\u05EA \u05D4\u05DE\u05D6\u05D5\u05DE\u05E0\u05D9\u05DD \u05E9\u05DC \u05D4\u05E1\u05E0\u05D9\u05E3."
+      };
+    } else if (qCap < 20) {
+      tip = {
+        icon: "\u{1F465}",
+        type: "action",
+        title: tObj.advisorTipUpgradeQueueTitle || "\u05D4\u05E8\u05D7\u05D1 \u05EA\u05D5\u05E8 \u05DC\u05E7\u05D5\u05D7\u05D5\u05EA \u{1F465}",
+        desc: tObj.advisorTipUpgradeQueueDesc || "\u05D4\u05D2\u05D3\u05DC\u05EA \u05E7\u05D9\u05D1\u05D5\u05DC\u05EA \u05D4\u05EA\u05D5\u05E8 \u05EA\u05D0\u05E4\u05E9\u05E8 \u05E7\u05DC\u05D9\u05D8\u05EA \u05DC\u05E7\u05D5\u05D7\u05D5\u05EA \u05E8\u05E6\u05D9\u05E4\u05D4 \u05DC\u05DC\u05D0 \u05E2\u05D9\u05DB\u05D5\u05D1\u05D9\u05DD."
+      };
     } else {
-      const warningsFragment = document.createDocumentFragment();
-      warnings.forEach((w) => {
-        const item = document.createElement("div");
-        item.className = "analytic-warning-item";
-        item.innerText = w;
-        warningsFragment.appendChild(item);
-      });
-      warningsListEl.appendChild(warningsFragment);
-    }
-    activateModal(modal);
-    const closeBtn = document.getElementById("analytics-close-btn");
-    if (closeBtn) {
-      closeBtn.onclick = () => {
-        initSound2();
-        modal.classList.remove("active");
+      tip = {
+        icon: "\u26A1",
+        type: "action",
+        title: tObj.advisorTipUpgradeTellerTitle || "\u05E9\u05D3\u05E8\u05D2 \u05E2\u05DE\u05D3\u05D5\u05EA \u05DB\u05E1\u05E4\u05E8\u05D9\u05DD \u26A1",
+        desc: tObj.advisorTipUpgradeTellerDesc || "\u05E9\u05D3\u05E8\u05D5\u05D2 \u05E2\u05DE\u05D3\u05D5\u05EA \u05D4\u05DB\u05E1\u05E4\u05E8\u05D9\u05DD \u05DE\u05E2\u05DC\u05D4 \u05D0\u05EA \u05DE\u05D4\u05D9\u05E8\u05D5\u05EA \u05D4\u05D8\u05D9\u05E4\u05D5\u05DC \u05D5\u05D4\u05E8\u05D5\u05D5\u05D7 \u05DC\u05E9\u05E0\u05D9\u05D9\u05D4."
       };
     }
+    const item = document.createElement("div");
+    item.className = `analytic-optimal-card-master ${tip.type}`;
+    item.innerHTML = `
+        <div class="optimal-star-circle">
+            <span class="optimal-star-glyph">${tip.icon}</span>
+        </div>
+        <div class="optimal-text-group">
+            <strong class="optimal-headline">${tip.title}</strong>
+            <span class="optimal-sub">${tip.desc}</span>
+        </div>
+    `;
+    warningsListEl.appendChild(item);
+    activateModal(modal);
+    const closeHandler = () => {
+      if (typeof window.hapticTap === "function") window.hapticTap();
+      if (window.gameAudio && typeof window.gameAudio.playClick === "function") window.gameAudio.playClick();
+      modal.classList.remove("active");
+    };
+    const closeBtn = document.getElementById("analytics-close-btn");
+    if (closeBtn) closeBtn.onclick = closeHandler;
+    const closeXBtn = document.getElementById("analytics-close-x");
+    if (closeXBtn) closeXBtn.onclick = closeHandler;
     modal.onclick = (e) => {
       if (e.target === modal) {
-        initSound2();
-        modal.classList.remove("active");
+        closeHandler();
       }
     };
   }
@@ -3393,6 +3812,10 @@
       DOM_CACHE.settingsDangerTitle.innerHTML = `${base} <span aria-hidden="true">\u26A0\uFE0F</span>`;
     }
     if (DOM_CACHE.settingsThemeTitle) DOM_CACHE.settingsThemeTitle.innerText = tObj.themeTitle || "\u05D1\u05D7\u05E8 \u05E6\u05D1\u05E2 \u05E8\u05E7\u05E2";
+    const hapticsLabel = document.getElementById("settings-haptics-label");
+    if (hapticsLabel) {
+      hapticsLabel.innerText = tObj.settingsHapticsLabel || "\u05E8\u05D8\u05D8 \u05D1\u05DE\u05D2\u05E2";
+    }
     const notifLabel = document.getElementById("settings-notif-label");
     if (notifLabel) {
       notifLabel.innerText = tObj.settingsNotifLabel || "\u05D4\u05EA\u05E8\u05D0\u05D5\u05EA \u05D3\u05D7\u05D9\u05E4\u05D4";
@@ -3509,6 +3932,7 @@
     updateElText("lang-modal-text", tObj.langModalText);
     updateElText("lang-modal-close-text", tObj.settingsClose || tObj.langModalClose);
     updateElText("settings-theme-title-text", tObj.themeTitle);
+    updateElText("settings-haptics-label", tObj.settingsHapticsLabel);
     updateElText("settings-notif-label", tObj.settingsNotifLabel);
     updateElText("settings-danger-title-text", (tObj.dangerZoneTitle || "").replace("\u26A0\uFE0F", "").trim());
     updateElText("reset-confirm-label", tObj.resetConfirmLabel);
@@ -5989,10 +6413,7 @@
     if (headerDailyBtn) {
       headerDailyBtn.addEventListener("click", () => {
         initSound2();
-        try {
-          navigator.vibrate && navigator.vibrate(5);
-        } catch (e) {
-        }
+        hapticTap();
         const existingTabBtn = document.querySelector('.tab-btn[data-tab="daily"]');
         if (existingTabBtn) {
           existingTabBtn.click();
@@ -6055,6 +6476,19 @@
         }
       });
     });
+    const hapticsToggle = document.getElementById("settings-haptics-checkbox");
+    if (hapticsToggle) {
+      hapticsToggle.addEventListener("change", (e) => {
+        initSound2();
+        if (window.game && window.game.state) {
+          window.game.state.hapticsEnabled = e.target.checked;
+          window.game.saveGame();
+        }
+        if (window.gameAudio && typeof window.gameAudio.playClick === "function") {
+          window.gameAudio.playClick();
+        }
+      });
+    }
     const notifToggle = document.getElementById("settings-notif-checkbox");
     if (notifToggle) {
       notifToggle.addEventListener("change", (e) => {
@@ -6146,10 +6580,7 @@
     };
     document.querySelectorAll(".bottom-nav-btn").forEach((btn) => {
       btn.addEventListener("click", () => {
-        try {
-          navigator.vibrate && navigator.vibrate(5);
-        } catch (e) {
-        }
+        hapticTap();
         const tab = btn.dataset.tab;
         const existingTabBtn = document.querySelector(`.tab-btn[data-tab="${tab}"]`);
         if (existingTabBtn) {
@@ -6176,10 +6607,7 @@
     const vaultMiniBtn = document.getElementById("vault-mini-btn");
     if (vaultMiniBtn) {
       vaultMiniBtn.addEventListener("click", () => {
-        try {
-          navigator.vibrate && navigator.vibrate([8, 30, 8]);
-        } catch (e) {
-        }
+        hapticTap();
         const mainVaultBtn = document.getElementById("collect-vault-btn");
         if (mainVaultBtn) mainVaultBtn.click();
       });
@@ -6207,10 +6635,7 @@
         const btn = e.target.closest(".buy-btn");
         if (!btn || btn.classList.contains("disabled")) return;
         initSound2();
-        try {
-          navigator.vibrate && navigator.vibrate(12);
-        } catch (e2) {
-        }
+        hapticTap();
         const type = btn.getAttribute("data-type");
         const id = parseInt(btn.getAttribute("data-id"));
         if (isNaN(id) && (type === "teller" || type === "guard")) return;
@@ -6813,6 +7238,10 @@ ${stack}` : String(message);
         }
         const savedTheme = window.localStorage.getItem("idle_bank_theme") || "blue";
         applyTheme(savedTheme);
+        const hapticsCheckbox = document.getElementById("settings-haptics-checkbox");
+        if (hapticsCheckbox) {
+          hapticsCheckbox.checked = window.game.state.hapticsEnabled !== false;
+        }
         const notifCheckbox = document.getElementById("settings-notif-checkbox");
         if (notifCheckbox) {
           notifCheckbox.checked = window.game.state.notificationsEnabled !== false;

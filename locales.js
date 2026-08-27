@@ -3143,7 +3143,8 @@ Object.assign(translations.he, {
     notifDailyBody: (rewardText) => `אל תשבור את הרצף — חזור היום ותקבל מחר ${rewardText}`,
     notifComebackTitle: "😴 הבנק שלך מתגעגע",
     notifComebackBody: "העובדים משתעממים בלעדיך — חזרה מהירה?",
-    settingsNotifLabel: "התראות דחיפה"
+    settingsNotifLabel: "התראות דחיפה",
+    settingsHapticsLabel: "רטט במגע"
 });
 Object.assign(translations.en, {
     notifOfflineTitle: "🏦 Vault is full!",
@@ -3152,7 +3153,8 @@ Object.assign(translations.en, {
     notifDailyBody: (rewardText) => `Don't break your streak — come back today to unlock ${rewardText} tomorrow`,
     notifComebackTitle: "😴 Your bank misses you",
     notifComebackBody: "The employees are getting bored — quick check-in?",
-    settingsNotifLabel: "Push Notifications"
+    settingsNotifLabel: "Push Notifications",
+    settingsHapticsLabel: "Haptic Feedback"
 });
 Object.assign(translations.es, {
     notifOfflineTitle: "🏦 ¡La bóveda está llena!",
@@ -3161,7 +3163,8 @@ Object.assign(translations.es, {
     notifDailyBody: (rewardText) => `No rompas tu racha — vuelve hoy para desbloquear ${rewardText} mañana`,
     notifComebackTitle: "😴 Tu banco te extraña",
     notifComebackBody: "Los empleados se aburren sin ti — ¿un vistazo rápido?",
-    settingsNotifLabel: "Notificaciones"
+    settingsNotifLabel: "Notificaciones",
+    settingsHapticsLabel: "Vibración al tocar"
 });
 Object.assign(translations.ru, {
     notifOfflineTitle: "🏦 Хранилище переполнено!",
@@ -3170,7 +3173,8 @@ Object.assign(translations.ru, {
     notifDailyBody: (rewardText) => `Не теряй серию — зайди сегодня, чтобы получить завтра ${rewardText}`,
     notifComebackTitle: "😴 Ваш банк скучает",
     notifComebackBody: "Сотрудники скучают без вас — заглянете?",
-    settingsNotifLabel: "Уведомления"
+    settingsNotifLabel: "Уведомления",
+    settingsHapticsLabel: "Вибрация при касании"
 });
 
 Object.assign(translations.he, {
@@ -3283,4 +3287,267 @@ Object.assign(translations.ru, {
     "weeklyDismissSub": "Вернуться в игру",
     "weeklyAdBtn": "Получите буст x2 на 8 часов!",
     "weeklyCloseBtn": "✕ Закрыть и продолжить"
+});
+
+Object.assign(translations.he, {
+    analyticsModalTitle: "דוח ביצועים אנליטי",
+    analyticsLiveHeader: "נתונים חיים בזמן אמת",
+    analyticsLabelEps: "תזרים רווח לשנייה",
+    analyticsLabelVault: "עומס כספת",
+    analyticsTitleTellers: "תפוקת עמדות כספרים",
+    analyticsOpsFlowTitle: "איזון שרשרת תפעול",
+    analyticsTitleWarnings: "יועץ עסקי וצווארי בקבוק",
+    analyticsOptimalTitle: "הסניף מתפקד ביעילות שיא!",
+    analyticsNoBottlenecks: "אין צווארי בקבוק — זרימת הלקוחות, הכספרים והבלדרים מאוזנת לחלוטין.",
+    ofTotalShare: "מסך הרווח",
+    opsQueueTitle: "תור לקוחות",
+    opsGuardsTitle: "פינוי בלדרים",
+    opsVaultTitle: "קיבולת כספת",
+    opsFlowSmooth: "זרימה פנויה ✔",
+    opsFlowCrowded: "עומס בתור ⚠️",
+    opsGuardsFast: "100% פינוי בזמן ✔",
+    opsGuardsDelay: "עיכוב בפינוי ⚠️",
+    warnVaultFullTitle: "הכספת מלאה!",
+    warnQueueFullTitle: "תור הלקוחות מלא!",
+    warnGuardsSlowTitle: "פינוי מזומנים איטי",
+    warnTellersSlowTitle: "עומס בדלפקים",
+    analyticsCloseBtn: "סגור דוח",
+    perSecShort: "/שנ'"
+});
+Object.assign(translations.en, {
+    analyticsModalTitle: "Performance Analytics",
+    analyticsLiveHeader: "Live Real-Time Data",
+    analyticsLabelEps: "Cash Flow / Sec",
+    analyticsLabelVault: "Vault Load",
+    analyticsTitleTellers: "Teller Stations Output",
+    analyticsOpsFlowTitle: "Operations Balance",
+    analyticsTitleWarnings: "Business Advisor & Alerts",
+    analyticsOptimalTitle: "Branch Operating at Peak Efficiency!",
+    analyticsNoBottlenecks: "No bottlenecks — customer flow, tellers, and guards are fully balanced.",
+    ofTotalShare: "of total revenue",
+    opsQueueTitle: "Customer Queue",
+    opsGuardsTitle: "Guard Transport",
+    opsVaultTitle: "Vault Storage",
+    opsFlowSmooth: "Clear Flow ✔",
+    opsFlowCrowded: "Queue Crowded ⚠️",
+    opsGuardsFast: "100% On-Time ✔",
+    opsGuardsDelay: "Transport Delay ⚠️",
+    warnVaultFullTitle: "Vault Full!",
+    warnQueueFullTitle: "Customer Queue Full!",
+    warnGuardsSlowTitle: "Slow Cash Clearance",
+    warnTellersSlowTitle: "Desk Overload",
+    analyticsCloseBtn: "Close Report",
+    perSecShort: "/sec"
+});
+Object.assign(translations.es, {
+    analyticsModalTitle: "Análisis de Rendimiento",
+    analyticsLiveHeader: "Datos en Tiempo Real",
+    analyticsLabelEps: "Flujo de Caja / Seg",
+    analyticsLabelVault: "Carga de Bóveda",
+    analyticsTitleTellers: "Rendimiento de Cajeros",
+    analyticsOpsFlowTitle: "Equilibrio Operativo",
+    analyticsTitleWarnings: "Asesor de Negocios y Alertas",
+    analyticsOptimalTitle: "¡Sucursal al Máximo Rendimiento!",
+    analyticsNoBottlenecks: "Sin cuellos de botella — flujo de clientes, cajeros y guardias totalmente equilibrado.",
+    ofTotalShare: "del total",
+    opsQueueTitle: "Cola de Clientes",
+    opsGuardsTitle: "Transporte de Guardias",
+    opsVaultTitle: "Capacidad de Bóveda",
+    opsFlowSmooth: "Flujo Libre ✔",
+    opsFlowCrowded: "Cola Llena ⚠️",
+    opsGuardsFast: "100% a Tiempo ✔",
+    opsGuardsDelay: "Retraso de Transporte ⚠️",
+    warnVaultFullTitle: "¡Bóveda Llena!",
+    warnQueueFullTitle: "¡Cola de Clientes Llena!",
+    warnGuardsSlowTitle: "Recogida Lenta de Efectivo",
+    warnTellersSlowTitle: "Sobrecarga en Mostradores",
+    analyticsCloseBtn: "Cerrar Informe",
+    perSecShort: "/seg"
+});
+Object.assign(translations.ru, {
+    analyticsModalTitle: "Аналитический Отчет",
+    analyticsLiveHeader: "Данные в реальном времени",
+    analyticsLabelEps: "Прибыль в секунду",
+    analyticsLabelVault: "Загрузка хранилища",
+    analyticsTitleTellers: "Эффективность кассиров",
+    analyticsOpsFlowTitle: "Баланс операций",
+    analyticsTitleWarnings: "Бизнес-советник и отчеты",
+    analyticsOptimalTitle: "Филиал работает с пиковой эффективностью!",
+    analyticsNoBottlenecks: "Узких мест нет — поток клиентов, кассиры и охрана полностью сбалансированы.",
+    ofTotalShare: "от общей прибыли",
+    opsQueueTitle: "Очередь клиентов",
+    opsGuardsTitle: "Инкассация",
+    opsVaultTitle: "Хранилище",
+    opsFlowSmooth: "Поток свободен ✔",
+    opsFlowCrowded: "Очередь заполнена ⚠️",
+    opsGuardsFast: "100% вовремя ✔",
+    opsGuardsDelay: "Задержка инкассации ⚠️",
+    warnVaultFullTitle: "Хранилище переполнено!",
+    warnQueueFullTitle: "Очередь переполнена!",
+    warnGuardsSlowTitle: "Медленная инкассация",
+    warnTellersSlowTitle: "Нагрузка на кассы",
+    analyticsCloseBtn: "Закрыть отчет",
+    perSecShort: "/сек"
+});
+
+Object.assign(translations.he, {
+    analyticsModalTitle: "דוח ביצועים אנליטי",
+    analyticsLiveHeader: "נתונים חיים בזמן אמת",
+    analyticsTitleTellers: "תפוקת עמדות כספרים",
+    analyticsOpsFlowTitle: "איזון שרשרת תפעול",
+    analyticsTitleWarnings: "יועץ עסקי וצווארי בקבוק",
+    analyticsOptimalTitle: "הסניף מתפקד ביעילות שיא!",
+    analyticsNoBottlenecks: "אין צווארי בקבוק — זרימת הלקוחות, הכספרים והבלדרים מאוזנת לחלוטין.",
+    levelLabelShort: "רמה",
+    ofTotalShare: "מסך הרווח",
+    opsQueueTitle: "תור לקוחות",
+    opsGuardsTitle: "פינוי בלדרים",
+    opsVaultTitle: "קיבולת כספת",
+    opsFlowSmooth: "זרימה פנויה ✔",
+    opsFlowCrowded: "עומס בתור ⚠️",
+    opsGuardsFast: "100% פינוי בזמן ✔",
+    opsGuardsDelay: "עיכוב בפינוי ⚠️",
+    warnVaultFullTitle: "הכספת מלאה!",
+    analyticsWarningVaultFull: "הכספת עולה על גדותיה — מומלץ לאסוף מזומנים או לשדרג את קיבולת הכספת.",
+    warnQueueFullTitle: "תור הלקוחות מלא!",
+    analyticsWarningQueueFull: "לקוחות חדשים אינם יכולים להיכנס — מומלץ לשדרג את עמדות הכספרים.",
+    warnGuardsSlowTitle: "פינוי מזומנים איטי",
+    analyticsWarningGuardsSlow: "דלפקי הכספרים עמוסים במזומנים — שדרג את מהירות הבלדרים לפינוי מהיר.",
+    warnTellersSlowTitle: "עומס בדלפקים",
+    analyticsWarningTellersSlow: "זמן ההמתנה מתארך — מומלץ לפתוח כספר נוסף או לשדרג מהירות.",
+    analyticsCloseBtn: "סגור דוח",
+    perSecShort: "/שנ'"
+});
+Object.assign(translations.en, {
+    analyticsModalTitle: "Performance Analytics",
+    analyticsLiveHeader: "Live Real-Time Data",
+    analyticsTitleTellers: "Teller Stations Output",
+    analyticsOpsFlowTitle: "Operations Balance",
+    analyticsTitleWarnings: "Business Advisor & Alerts",
+    analyticsOptimalTitle: "Branch Operating at Peak Efficiency!",
+    analyticsNoBottlenecks: "No bottlenecks — customer flow, tellers, and guards are fully balanced.",
+    levelLabelShort: "LVL",
+    ofTotalShare: "of total revenue",
+    opsQueueTitle: "Customer Queue",
+    opsGuardsTitle: "Guard Transport",
+    opsVaultTitle: "Vault Storage",
+    opsFlowSmooth: "Clear Flow ✔",
+    opsFlowCrowded: "Queue Crowded ⚠️",
+    opsGuardsFast: "100% On-Time ✔",
+    opsGuardsDelay: "Transport Delay ⚠️",
+    warnVaultFullTitle: "Vault Full!",
+    analyticsWarningVaultFull: "Vault is full — collect your cash or upgrade vault capacity.",
+    warnQueueFullTitle: "Customer Queue Full!",
+    analyticsWarningQueueFull: "Queue is full — upgrade tellers to accept more customers.",
+    warnGuardsSlowTitle: "Slow Cash Clearance",
+    analyticsWarningGuardsSlow: "Teller desks are accumulating cash — upgrade guard speed for faster collection.",
+    warnTellersSlowTitle: "Desk Overload",
+    analyticsWarningTellersSlow: "Queue wait time is high — hire more tellers or boost teller speed.",
+    analyticsCloseBtn: "Close Report",
+    perSecShort: "/sec"
+});
+Object.assign(translations.es, {
+    analyticsModalTitle: "Análisis de Rendimiento",
+    analyticsLiveHeader: "Datos en Tiempo Real",
+    analyticsTitleTellers: "Rendimiento de Cajeros",
+    analyticsOpsFlowTitle: "Equilibrio Operativo",
+    analyticsTitleWarnings: "Asesor de Negocios y Alertas",
+    analyticsOptimalTitle: "¡Sucursal al Máximo Rendimiento!",
+    analyticsNoBottlenecks: "Sin cuellos de botella — flujo de clientes, cajeros y guardias totalmente equilibrado.",
+    levelLabelShort: "NIV",
+    ofTotalShare: "del total",
+    opsQueueTitle: "Cola de Clientes",
+    opsGuardsTitle: "Transporte de Guardias",
+    opsVaultTitle: "Capacidad de Bóveda",
+    opsFlowSmooth: "Flujo Libre ✔",
+    opsFlowCrowded: "Cola Llena ⚠️",
+    opsGuardsFast: "100% a Tiempo ✔",
+    opsGuardsDelay: "Retraso de Transporte ⚠️",
+    warnVaultFullTitle: "¡Bóveda Llena!",
+    analyticsWarningVaultFull: "La bóveda está llena — recoge tu dinero o mejora su capacidad.",
+    warnQueueFullTitle: "¡Cola de Clientes Llena!",
+    analyticsWarningQueueFull: "La cola está llena — mejora los cajeros para atender más clientes.",
+    warnGuardsSlowTitle: "Recogida Lenta de Efectivo",
+    analyticsWarningGuardsSlow: "Los cajeros acumulan efectivo — aumenta la velocidad de los guardias.",
+    warnTellersSlowTitle: "Sobrecarga en Mostradores",
+    analyticsWarningTellersSlow: "La espera es alta — contrata más cajeros o mejora su velocidad.",
+    analyticsCloseBtn: "Cerrar Informe",
+    perSecShort: "/seg"
+});
+Object.assign(translations.ru, {
+    analyticsModalTitle: "Аналитический Отчет",
+    analyticsLiveHeader: "Данные в реальном времени",
+    analyticsTitleTellers: "Эффективность кассиров",
+    analyticsOpsFlowTitle: "Баланс операций",
+    analyticsTitleWarnings: "Бизнес-советник и отчеты",
+    analyticsOptimalTitle: "Филиал работает с пиковой эффективностью!",
+    analyticsNoBottlenecks: "Узких мест нет — поток клиентов, кассиры и охрана полностью сбалансированы.",
+    levelLabelShort: "УР.",
+    ofTotalShare: "от общей прибыли",
+    opsQueueTitle: "Очередь клиентов",
+    opsGuardsTitle: "Инкассация",
+    opsVaultTitle: "Хранилище",
+    opsFlowSmooth: "Поток свободен ✔",
+    opsFlowCrowded: "Очередь заполнена ⚠️",
+    opsGuardsFast: "100% вовремя ✔",
+    opsGuardsDelay: "Задержка инкассации ⚠️",
+    warnVaultFullTitle: "Хранилище переполнено!",
+    analyticsWarningVaultFull: "Хранилище переполнено — заберите деньги или увеличьте вместимость.",
+    warnQueueFullTitle: "Очередь переполнена!",
+    analyticsWarningQueueFull: "Очередь переполнена — улучшите кассиров для быстрого обслуживания.",
+    warnGuardsSlowTitle: "Медленная инкассация",
+    analyticsWarningGuardsSlow: "На кассах скапливаются деньги — повысьте скорость инкассаторов.",
+    warnTellersSlowTitle: "Нагрузка на кассы",
+    analyticsWarningTellersSlow: "Время ожидания растет — наймите больше кассиров или увеличьте скорость.",
+    analyticsCloseBtn: "Закрыть отчет",
+    perSecShort: "/сек"
+});
+
+Object.assign(translations.he, {
+    advisorTipUnlockTellerTitle: "פתח כספר נוסף 🚀",
+    advisorTipUnlockTellerDesc: "פתיחת עמדת כספר חדשה תזניק את זרימת המזומנים של הסניף.",
+    advisorTipUpgradeTellerTitle: "שדרג עמדות כספרים ⚡",
+    advisorTipUpgradeTellerDesc: "שדרוג עמדות הכספרים מעלה את מהירות הטיפול והרווח לשנייה.",
+    advisorTipUpgradeGuardsTitle: "שדרג מהירות בלדרים 🏃",
+    advisorTipUpgradeGuardsDesc: "שדרוג הבלדרים יפנה כסף מדלפקי הכספרים מהר יותר לכספת.",
+    advisorTipUpgradeQueueTitle: "הרחב תור לקוחות 👥",
+    advisorTipUpgradeQueueDesc: "הגדלת קיבולת התור תאפשר קליטת לקוחות רציפה ללא עיכובים.",
+    advisorTipUpgradeVaultTitle: "שדרג את הכספת 🏦",
+    advisorTipUpgradeVaultDesc: "הגדל את קיבולת הכספת לאגירת רווחים גדולה יותר."
+});
+Object.assign(translations.en, {
+    advisorTipUnlockTellerTitle: "Unlock Next Teller 🚀",
+    advisorTipUnlockTellerDesc: "Opening a new teller desk will dramatically increase cash flow.",
+    advisorTipUpgradeTellerTitle: "Upgrade Tellers ⚡",
+    advisorTipUpgradeTellerDesc: "Upgrading teller stations boosts processing speed and profit per second.",
+    advisorTipUpgradeGuardsTitle: "Upgrade Guards 🏃",
+    advisorTipUpgradeGuardsDesc: "Increase guard speed to clear cash from desks into the vault faster.",
+    advisorTipUpgradeQueueTitle: "Expand Customer Queue 👥",
+    advisorTipUpgradeQueueDesc: "Enlarging the queue capacity brings continuous customer traffic.",
+    advisorTipUpgradeVaultTitle: "Upgrade Vault 🏦",
+    advisorTipUpgradeVaultDesc: "Expand vault capacity to store massive offline and active earnings."
+});
+Object.assign(translations.es, {
+    advisorTipUnlockTellerTitle: "Desbloquear Cajero 🚀",
+    advisorTipUnlockTellerDesc: "Abrir una nueva caja aumentará drásticamente el flujo de efectivo.",
+    advisorTipUpgradeTellerTitle: "Mejorar Cajeros ⚡",
+    advisorTipUpgradeTellerDesc: "Mejorar las cajas aumenta la velocidad y las ganancias por segundo.",
+    advisorTipUpgradeGuardsTitle: "Mejorar Guardias 🏃",
+    advisorTipUpgradeGuardsDesc: "Aumenta la velocidad de guardias para mover efectivo más rápido.",
+    advisorTipUpgradeQueueTitle: "Ampliar Cola 👥",
+    advisorTipUpgradeQueueDesc: "Ampliar la cola permite atender más clientes sin retrasos.",
+    advisorTipUpgradeVaultTitle: "Mejorar Bóveda 🏦",
+    advisorTipUpgradeVaultDesc: "Aumenta la capacidad de la bóveda para almacenar más riqueza."
+});
+Object.assign(translations.ru, {
+    advisorTipUnlockTellerTitle: "Открыть кассира 🚀",
+    advisorTipUnlockTellerDesc: "Открытие новой кассы значительно увеличит приток прибыли.",
+    advisorTipUpgradeTellerTitle: "Улучшить кассиров ⚡",
+    advisorTipUpgradeTellerDesc: "Повышение уровня касс увеличивает скорость и прибыль в секунду.",
+    advisorTipUpgradeGuardsTitle: "Улучшить охрану 🏃",
+    advisorTipUpgradeGuardsDesc: "Увеличьте скорость инкассаторов для быстрой доставки в хранилище.",
+    advisorTipUpgradeQueueTitle: "Расширить очередь 👥",
+    advisorTipUpgradeQueueDesc: "Увеличение очереди обеспечивает постоянный поток клиентов.",
+    advisorTipUpgradeVaultTitle: "Улучшить хранилище 🏦",
+    advisorTipUpgradeVaultDesc: "Увеличьте вместимость хранилища для накопления доходов."
 });
