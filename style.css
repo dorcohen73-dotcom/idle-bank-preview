@@ -13837,14 +13837,16 @@ html[dir=rtl] .secondary-card-content {
 }
 
 /* ========================================================
-   UNIFIED SLEEK TOPBAR BADGES & SUBTLE REFINED GLOW
+   UNIFIED SLEEK TOPBAR BADGES & LIVELY FLOATING ANIMATION
    ======================================================== */
-@keyframes badgeGentleFloat {
+@keyframes badgeFloatBounce {
   0%, 100% {
     transform: translateY(0) scale(1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.6), 0 0 6px rgba(16, 185, 129, 0.7);
   }
   50% {
-    transform: translateY(-2px) scale(1.08);
+    transform: translateY(-4px) scale(1.18);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4), 0 0 14px rgb(16, 185, 129);
   }
 }
 .boost-timer-badge {
@@ -13873,18 +13875,17 @@ html[dir=rtl] .secondary-card-content {
 .fortune-wheel-badge,
 .daily-ready-badge {
   position: absolute !important;
-  top: -2px !important;
-  right: -2px !important;
+  top: -3px !important;
+  right: -3px !important;
   left: auto !important;
   bottom: auto !important;
-  transform: none !important;
-  min-width: 14px !important;
-  height: 14px !important;
+  min-width: 15px !important;
+  height: 15px !important;
   padding: 0 3px !important;
   border-radius: 999px !important;
-  font-size: 0.52rem !important;
+  font-size: 0.54rem !important;
   font-weight: 900 !important;
-  line-height: 12px !important;
+  line-height: 13px !important;
   white-space: nowrap !important;
   text-align: center !important;
   box-sizing: border-box !important;
@@ -13894,10 +13895,11 @@ html[dir=rtl] .secondary-card-content {
   align-items: center !important;
   justify-content: center !important;
   border: 1.5px solid #0f121e !important;
-  animation: badgeGentleFloat 1.8s ease-in-out infinite !important;
+  animation: badgeFloatBounce 1.4s ease-in-out infinite !important;
+  will-change: transform, box-shadow;
 }
 
-/* Fortune Wheel Ready: Vibrant Green Badge with Exclamation Mark & Gentle Float */
+/* Fortune Wheel Ready: Vibrant Green Badge with Exclamation Mark & Lively Float */
 .fortune-wheel-badge {
   background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
   color: #ffffff !important;
@@ -13911,7 +13913,7 @@ html[dir=rtl] .secondary-card-content {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.6), 0 0 8px rgba(16, 185, 129, 0.85) !important;
 }
 
-/* Daily Trophy Ready Badge: Vibrant Green Notification with Gentle Float */
+/* Daily Trophy Ready Badge: Vibrant Green Notification with Lively Float */
 .daily-ready-badge {
   background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
   color: #ffffff !important;
