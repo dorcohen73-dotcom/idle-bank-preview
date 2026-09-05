@@ -89,7 +89,7 @@
 
     <!-- Application Styles — compiled from scss/main.scss (npm run css), which also
          includes what used to be premium_depts.css and premium_managers.css. -->
-    <link rel="stylesheet" href="style.css?v=ffbfdf125f">
+    <link rel="stylesheet" href="style.css?v=0adfece66c">
 
     <!-- PWA Manifest -->
     <link rel="manifest" href="manifest.json">
@@ -282,10 +282,9 @@
                     </div>
                     <button class="topbar-action-btn sound-toggle-btn boost-toggle-btn ad-pulse-button" id="boost-btn" title="מאיץ הכנסות פי 2"
                         aria-label="מאיץ הכנסות פי 2"><span aria-hidden="true">⚡</span><span class="boost-timer-badge" id="boost-timer-badge">2x</span></button>
-                    <button class="topbar-action-btn sound-toggle-btn header-daily-btn" id="header-daily-btn" data-tab="daily" title="הישגים"
-                        aria-label="הישגים"><span aria-hidden="true">🏆</span></button>
+                    <button class="topbar-action-btn sound-toggle-btn header-daily-btn" id="header-daily-btn" data-tab="daily" title="הישגים" aria-label="הישגים"><span aria-hidden="true">🏆</span><span class="daily-ready-badge" id="header-daily-badge">!</span></button>
                     <button class="topbar-action-btn sound-toggle-btn fortune-wheel-header-btn" id="fortune-wheel-btn"
-                        title="גלגל המזל היומי" aria-label="גלגל המזל היומי"><span class="wheel-icon" aria-hidden="true">🎡</span><span class="fortune-wheel-badge" id="fortune-wheel-badge">חינם</span></button>
+                        title="גלגל המזל היומי" aria-label="גלגל המזל היומי"><span class="wheel-icon" aria-hidden="true">🎡</span><span class="fortune-wheel-badge" id="fortune-wheel-badge">!</span></button>
                     <button class="topbar-action-btn sound-toggle-btn" id="analytics-btn" title="מדדים ואנליטיקה"
                         aria-label="דוח ביצועים ואנליטיקה"><span aria-hidden="true">📊</span></button>
                     <button class="topbar-action-btn sound-toggle-btn" id="lang-btn" title="הגדרות ושפה / Settings & Language"
@@ -902,7 +901,7 @@
             <div class="modal-icon" id="event-icon" aria-hidden="true">📢</div>
             <h2 class="modal-title" id="event-title"></h2>
             <div class="modal-event-cash-wrapper event-cash-display-box" id="event-cash-display-box">
-                יתרת מזומנים: <span id="event-cash-val" class="event-cash-val">$0</span>
+                <span id="event-cash-label" data-i18n="cashBalance">יתרת מזומנים:</span> <span id="event-cash-val" class="event-cash-val">$0</span>
             </div>
             <p class="modal-text" id="event-text"></p>
             <div class="event-options-list" id="event-options-container">
@@ -1202,7 +1201,7 @@
     </div>
 
     <script src="config.js?v=20260724_3" defer></script>
-    <script src="locales.js?v=ffbfdf125f" defer></script>
+    <script src="locales.js?v=0adfece66c" defer></script>
     <script src="economy-manager.js?v=20260724_1" defer></script>
     <script src="save-manager.js?v=20260724_2" defer></script>
     <script src="mission-controller.js?v=20260718_1" defer></script>
@@ -1213,7 +1212,7 @@
     <script src="shop-controller.js?v=20260718_5" defer></script>
     <script src="performance-manager.js?v=2" defer></script>
     <script src="game.js?v=20260718_5" defer></script>
-    <script src="app.bundle.js?v=ffbfdf125f" defer></script>
+    <script src="app.bundle.js?v=0adfece66c" defer></script>
     
 </body>
 

@@ -2320,6 +2320,8 @@
     iconEl.innerText = "\u26A1";
     titleEl.innerText = tObj.boostModalTitle;
     textEl.innerText = tObj.boostModalText;
+    const cashLabelEl = document.getElementById("event-cash-label");
+    if (cashLabelEl) cashLabelEl.innerText = tObj.cashBalance || "Cash Balance:";
     const cashValEl = document.getElementById("event-cash-val");
     if (cashValEl) {
       cashValEl.innerText = formatMoney(game.state.cash);
@@ -3333,7 +3335,7 @@
           }
         }
         const _pendingLogin = game.state.pendingLoginReward ? 1 : 0;
-        const _trophyReadyTotal = _dailyReady + _achieveReady + _pendingLogin;
+        const _trophyReadyTotal = _dailyReady + _achieveReady + _pendingLogin + _missionsReady;
         if (_missionsReady !== _lastMissionsReady) {
           _lastMissionsReady = _missionsReady;
           if (!_domMBadgeTop) _domMBadgeTop = document.getElementById("missions-tab-badge");
@@ -3368,7 +3370,7 @@
           const _trophyBadge = document.getElementById("header-daily-badge");
           if (_trophyBadge) {
             if (_trophyReadyTotal > 0) {
-              _trophyBadge.textContent = String(_trophyReadyTotal);
+              _trophyBadge.textContent = "!";
               _trophyBadge.style.display = "flex";
             } else {
               _trophyBadge.style.display = "none";
@@ -3886,6 +3888,8 @@
       boostTimerPillEl.title = tObj.boostLiveTimerTitle || "Booster time remaining";
     }
     if (DOM_CACHE.labelCash) DOM_CACHE.labelCash.innerText = tObj.cashLabel;
+    const eventCashLabel = document.getElementById("event-cash-label");
+    if (eventCashLabel) eventCashLabel.innerText = tObj.cashBalance || "Cash Balance:";
     if (DOM_CACHE.labelPerSecond) DOM_CACHE.labelPerSecond.innerText = tObj.perSecond;
     if (DOM_CACHE.labelShares) DOM_CACHE.labelShares.innerText = tObj.sharesLabel;
     const hudCashLabel = document.querySelector("#sticky-balance-bar .label-cash");

@@ -51,6 +51,7 @@ const translations = {
             vault: "לחץ כדי לרוקן את הכספת"
         },
         cashLabel: "יתרת מזומנים",
+        cashBalance: "יתרת מזומנים:",
         hudCash: "מזומן",
         hudIncome: "הכנסה/שנ'",
         hudShares: "מניות",
@@ -380,6 +381,7 @@ const translations = {
             vault: "Click to empty the vault"
         },
         cashLabel: "Cash Balance",
+        cashBalance: "Cash Balance:",
         perSecond: "per second",
         sharesLabel: "Golden Shares",
         multiplier: "Multiplier",
@@ -697,6 +699,7 @@ const translations = {
             vault: "Haz clic para vaciar la bóveda"
         },
         cashLabel: "Saldo de Efectivo",
+        cashBalance: "Saldo de Efectivo:",
         perSecond: "por segundo",
         sharesLabel: "Acciones de Oro",
         multiplier: "Multiplicador",
@@ -1023,6 +1026,7 @@ const translations = {
             vault: "Нажмите, чтобы очистить сейф"
         },
         cashLabel: "Баланс наличных",
+        cashBalance: "Баланс наличных:",
         perSecond: "в секунду",
         sharesLabel: "Золотые акции",
         multiplier: "Множитель",
