@@ -3197,40 +3197,6 @@ footer {
     opacity: 1;
   }
 }
-.tab-btn .tab-badge,
-.tab-badge,
-.tab-badge-counter {
-  position: absolute !important;
-  top: 2px !important;
-  right: 4px !important;
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
-  color: #ffffff !important;
-  font-family: var(--font-heading, system-ui, sans-serif) !important;
-  font-size: 0.62rem !important;
-  font-weight: 900 !important;
-  min-width: 16px !important;
-  height: 16px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  line-height: 1 !important;
-  border-radius: 999px !important;
-  padding: 0 4px !important;
-  box-sizing: border-box !important;
-  border: 1.5px solid #080c18 !important;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.6), 0 0 8px rgba(16, 185, 129, 0.7) !important;
-  animation: badgeGentleFloat 1.8s infinite ease-in-out !important;
-  z-index: 9999 !important;
-  pointer-events: none !important;
-}
-
-[dir=rtl] .tab-btn .tab-badge,
-[dir=rtl] .tab-badge,
-[dir=rtl] .tab-badge-counter {
-  right: auto !important;
-  left: 4px !important;
-}
-
 /* Animations Definitions */
 @keyframes float {
   0% {
@@ -4456,38 +4422,6 @@ footer {
     margin-bottom: 4px;
   }
 }
-/* ========================================================
-   VIBRANT CLAIMABLE REWARD PULSE & CARD GLOW
-   ======================================================== */
-@keyframes claimReadyPulse {
-  0%, 100% {
-    transform: scale(1);
-    box-shadow: 0 0 10px rgba(16, 185, 129, 0.6), inset 0 1px 2px rgba(255, 255, 255, 0.35);
-  }
-  50% {
-    transform: scale(1.05);
-    box-shadow: 0 0 22px rgba(16, 185, 129, 0.95), inset 0 1px 2px rgba(255, 255, 255, 0.6);
-  }
-}
-#tab-achievements .claim-achievement-btn,
-#tab-missions .claim-reward-btn,
-.claim-achievement-btn,
-.claim-reward-btn {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
-  border: 1.5px solid rgba(52, 211, 153, 0.9) !important;
-  color: #ffffff !important;
-  animation: claimReadyPulse 1.8s ease-in-out infinite !important;
-  font-weight: 900 !important;
-  cursor: pointer !important;
-  box-sizing: border-box !important;
-}
-
-#tab-achievements .achievement-card.unlocked:not(.claimed),
-#tab-missions .mission-card.completed:not(.claimed) {
-  border: 1.5px solid rgba(16, 185, 129, 0.75) !important;
-  box-shadow: 0 0 14px rgba(16, 185, 129, 0.35), inset 0 0 12px rgba(16, 185, 129, 0.12) !important;
-}
-
 /* Responsive adjustments to prevent horizontal shifts and overflows on smaller screens */
 @media (max-width: 768px) {
   /* Performance & Layout overrides */
