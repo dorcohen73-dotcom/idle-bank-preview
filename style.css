@@ -13806,6 +13806,8 @@ html[dir=rtl] .secondary-card-content {
   color: #fbbf24 !important;
 }
 
+.header-daily-btn .daily-ready-badge,
+.fortune-wheel-header-btn .fortune-wheel-badge,
 .fortune-wheel-badge,
 .daily-ready-badge {
   position: absolute !important;
@@ -13825,7 +13827,7 @@ html[dir=rtl] .secondary-card-content {
   box-sizing: border-box !important;
   z-index: 10 !important;
   pointer-events: none !important;
-  display: none;
+  display: none !important;
   align-items: center !important;
   justify-content: center !important;
   border: 1.5px solid #0f121e !important;

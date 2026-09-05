@@ -1457,9 +1457,6 @@
         }
       }
     }
-    if (!hasClaimableDaily && game.state.pendingLoginReward) {
-      hasClaimableDaily = true;
-    }
     updateTabDot("daily", hasClaimableDaily);
     const headerBtn = document.getElementById("header-daily-btn");
     if (headerBtn) {
@@ -3340,8 +3337,7 @@
             }
           }
         }
-        const _pendingLogin = game.state.pendingLoginReward ? 1 : 0;
-        const _trophyReadyTotal = _dailyReady + _achieveReady + _pendingLogin;
+        const _trophyReadyTotal = _dailyReady + _achieveReady;
         if (_missionsReady !== _lastMissionsReady) {
           _lastMissionsReady = _missionsReady;
           if (!_domMBadgeTop) _domMBadgeTop = document.getElementById("missions-tab-badge");

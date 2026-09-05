@@ -86,9 +86,6 @@ export function updateNotifications() {
             }
         }
     }
-    if (!hasClaimableDaily && game.state.pendingLoginReward) {
-        hasClaimableDaily = true;
-    }
 
     updateTabDot('daily', hasClaimableDaily);
     const headerBtn = document.getElementById('header-daily-btn');

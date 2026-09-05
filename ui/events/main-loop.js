@@ -159,8 +159,7 @@ export function tick(timestamp) {
                     }
                 }
             }
-            const _pendingLogin = (game.state.pendingLoginReward) ? 1 : 0;
-            const _trophyReadyTotal = _dailyReady + _achieveReady + _pendingLogin;
+            const _trophyReadyTotal = _dailyReady + _achieveReady;
 
             if (_missionsReady !== _lastMissionsReady) {
                 _lastMissionsReady = _missionsReady;
