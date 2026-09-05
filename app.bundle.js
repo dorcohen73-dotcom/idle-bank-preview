@@ -1444,20 +1444,26 @@
       _lastNotifUpgrades = hasUpgrades;
       updateTabDot("upgrades", hasUpgrades);
     }
-    let hasClaimableAchievements = false;
-    if (game.state.achievements && game.state.achievements.unlocked) {
+    let hasClaimableDaily = false;
+    if (game.state.dailyChallenges && game.state.dailyChallenges.some((c) => c && c.completed && !c.claimed)) {
+      hasClaimableDaily = true;
+    }
+    if (!hasClaimableDaily && game.state.achievements && game.state.achievements.unlocked) {
       const keys = Object.keys(game.state.achievements.unlocked);
       for (let i = 0; i < keys.length; i++) {
         if (game.state.achievements.unlocked[keys[i]] && (!game.state.achievements.claimed || !game.state.achievements.claimed[keys[i]])) {
-          hasClaimableAchievements = true;
+          hasClaimableDaily = true;
           break;
         }
       }
     }
-    updateTabDot("daily", hasClaimableAchievements);
+    if (!hasClaimableDaily && game.state.pendingLoginReward) {
+      hasClaimableDaily = true;
+    }
+    updateTabDot("daily", hasClaimableDaily);
     const headerBtn = document.getElementById("header-daily-btn");
     if (headerBtn) {
-      if (hasClaimableAchievements) {
+      if (hasClaimableDaily) {
         headerBtn.classList.add("header-glow");
       } else {
         headerBtn.classList.remove("header-glow");
@@ -3335,7 +3341,7 @@
           }
         }
         const _pendingLogin = game.state.pendingLoginReward ? 1 : 0;
-        const _trophyReadyTotal = _dailyReady + _achieveReady + _pendingLogin + _missionsReady;
+        const _trophyReadyTotal = _dailyReady + _achieveReady + _pendingLogin;
         if (_missionsReady !== _lastMissionsReady) {
           _lastMissionsReady = _missionsReady;
           if (!_domMBadgeTop) _domMBadgeTop = document.getElementById("missions-tab-badge");
