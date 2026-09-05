@@ -292,6 +292,7 @@ class SaveManager {
         if (!isNum(state.missionsCompleted) || state.missionsCompleted < 0) state.missionsCompleted = 0;
         if (!isNum(state.lastSaveTime)) state.lastSaveTime = Date.now();
         if (!isBool(state.notificationsEnabled)) state.notificationsEnabled = true;
+        if (!isBool(state.hapticsEnabled)) state.hapticsEnabled = true;
 
         if (!state.stats || typeof state.stats !== 'object') state.stats = {};
         if (!isNum(state.stats.prestigeCount) || state.stats.prestigeCount < 0) state.stats.prestigeCount = 0;
@@ -300,6 +301,8 @@ class SaveManager {
         // Fortune Wheel
         if (!isNum(state.lastSpinTime) || state.lastSpinTime < 0) state.lastSpinTime = 0;
         if (!isNum(state.lastAdSpinTime) || state.lastAdSpinTime < 0) state.lastAdSpinTime = 0;
+        if (!isNum(state.wheelAdSpinsCount) || state.wheelAdSpinsCount < 0) state.wheelAdSpinsCount = 0;
+        if (typeof state.wheelAdSpinsDate !== 'string') state.wheelAdSpinsDate = '';
 
         // VIP Visitor
         if (!isNum(state.nextVipVisit) || state.nextVipVisit < 0) state.nextVipVisit = 0;

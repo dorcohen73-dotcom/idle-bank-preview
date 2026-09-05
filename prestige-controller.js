@@ -47,18 +47,6 @@ class PrestigeController {
         if (!bypassCashCheck && game.state.cash < minReq) {
             game.isResetting = false;
             return false;
-        // Update branch name in DOM immediately
-        const _pLang = game.state.language || (typeof window !== 'undefined' && window.gameLanguage) || 'he';
-        const _pTObj = (typeof translations !== 'undefined' && translations[_pLang]) ? translations[_pLang] : null;
-        const _pBranchName = (_pTObj && _pTObj.branches && _pTObj.branches.names && _pTObj.branches.names[targetBranchIndex])
-            || (game.branches && game.branches[targetBranchIndex] ? game.branches[targetBranchIndex].name : ('Branch ' + targetBranchIndex));
-        const _pBranchEl = (typeof DOM_CACHE !== 'undefined' && DOM_CACHE.branchName) || (typeof document !== 'undefined' && document.getElementById('branch-name'));
-        if (_pBranchEl) {
-            _pBranchEl.innerText = ((_pTObj && _pTObj.bankPrefix) || '') + _pBranchName;
-        }
-        if (typeof window !== 'undefined' && typeof window.applyLanguage === 'function') {
-            window.applyLanguage(_pLang);
-        }
         }
 
         // Apply Prestige — total wallet shares capped at 100,000

@@ -87,6 +87,7 @@ class IdleBankGame {
             maxBranchUnlocked: 0,
             language: 'en',
             notificationsEnabled: true,
+            hapticsEnabled: true,
             onboardingCompleted: false,
             goldUpgrades: {
                 startingCash: 0,
@@ -170,6 +171,8 @@ class IdleBankGame {
             // Fortune Wheel
             lastSpinTime: 0,
             lastAdSpinTime: 0,
+            wheelAdSpinsCount: 0,
+            wheelAdSpinsDate: '',
 
             // VIP Visitor
             nextVipVisit: 0,

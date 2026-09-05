@@ -2,14 +2,12 @@
 
 const translations = {
     he: {
+        wheelBadgeFree: "חינם",
+        wheelBadgeSpin: "סובב",
+
         queueStatusEmpty: "התור פנוי",
         queueStatusOk: "תור פעיל",
         queueStatusFull: "תור מלא",
-        themeBlue: "כחול",
-        themeWhite: "לבן",
-        themeDark: "כהה",
-        headerDailyBtnTitle: "הישגים ואתגרים יומיים",
-        boostLiveTimerTitle: "זמן מאיץ נותר",
         themeBlue: "כחול",
         themeWhite: "לבן",
         themeDark: "כהה",
@@ -99,6 +97,7 @@ const translations = {
         insufficientFunds: "מחסור במזומן",
         maxLevel: "רמה מקסימלית",
         activeLabel: "פעיל 🟢",
+        guardLockedLabel: "נעול",
         lockedLabel: "נעול",
         upgradeLabel: "שדרג",
         unlockLabel: "פתח דלפק",
@@ -125,19 +124,6 @@ const translations = {
         servingClientLabel: "לקוח בטיפול",
         collectShortLabel: "איסוף",
         guardStates: {
-        themeBlue: "Azul",
-        themeWhite: "Claro",
-        themeDark: "Oscuro",
-        headerDailyBtnTitle: "Logros y Desafíos Diarios",
-        boostLiveTimerTitle: "Tiempo de potenciador restante",
-        onboardingSkip: "Saltar",
-        onboardingStep1: "¡Toca la caja para recolectar tu primer dinero! 💵",
-        onboardingStep2: "¡Toca 'Cobrar' para transferir dinero de la bóveda a tu saldo! 🏦",
-        onboardingStep3: "¡Mejora la caja para ganar más rápido! ⚡",
-        onboardingStepLabel: "Paso",
-        hudCash: "EFECTIVO",
-        hudIncome: "INGRESOS/s",
-        hudShares: "ACCIONES",
             idle: "בלדר ממתין בכספת...",
             moving_to_tellers: "בלדר נוסע לאסוף דלפקים...",
             collecting: "מעמיס שקים...",
@@ -343,14 +329,12 @@ const translations = {
         adCloseBtn: "סגור ❌ (ללא פרס)"
     },
     en: {
+        wheelBadgeFree: "FREE",
+        wheelBadgeSpin: "SPIN",
+
         queueStatusEmpty: "Queue Empty",
         queueStatusOk: "Queue Active",
         queueStatusFull: "Queue Full",
-        themeBlue: "Blue",
-        themeWhite: "Light",
-        themeDark: "Dark",
-        headerDailyBtnTitle: "Achievements & Daily Challenges",
-        boostLiveTimerTitle: "Booster time remaining",
         themeBlue: "Blue",
         themeWhite: "Light",
         themeDark: "Dark",
@@ -439,6 +423,7 @@ const translations = {
         insufficientFunds: "Need Cash",
         maxLevel: "Max Level",
         activeLabel: "Active 🟢",
+        guardLockedLabel: "Locked",
         lockedLabel: "Locked",
         upgradeLabel: "Upgrade",
         unlockLabel: "Unlock Desk",
@@ -459,7 +444,7 @@ const translations = {
         tellerLabel: "Teller",
         levelLabel: "Lvl",
         levelAbbr: "Lv",
-        guardLabel: "Courier",
+        guardLabel: "Guard",
         guardsLabel: "Couriers",
         boostOfferText: (time) => `⚡ OFFER! ${time}`,
         servingClientLabel: "Serving Client",
@@ -670,6 +655,8 @@ const translations = {
         adCloseBtn: "Close ❌ (No Reward)"
     },
     es: {
+        wheelBadgeFree: "GRATIS",
+        wheelBadgeSpin: "GIRAR",
         queueStatusEmpty: "Cola Vacía",
         queueStatusOk: "Cola Activa",
         queueStatusFull: "Cola Llena",
@@ -753,6 +740,7 @@ const translations = {
         insufficientFunds: "Falta Efectivo",
         maxLevel: "Nivel Máximo",
         activeLabel: "Activo 🟢",
+        guardLockedLabel: "Cerrado",
         lockedLabel: "Bloqueado",
         upgradeLabel: "Mejorar",
         unlockLabel: "Desbloquear",
@@ -773,7 +761,7 @@ const translations = {
         tellerLabel: "Cajero",
         levelLabel: "Nivel",
         levelAbbr: "Nv",
-        guardLabel: "Mensajero",
+        guardLabel: "Guardia",
         guardsLabel: "Mensajeros",
         boostOfferText: (time) => `⚡ ¡Oferta! ${time}`,
         servingClientLabel: "Atendiendo Cliente",
@@ -883,6 +871,10 @@ const translations = {
             tellerTitle: "Mejorar Escritorio de Cajero",
             tellerDesc: (t, id) => `Mejora el escritorio del cajero ${id || 1} al nivel ${t}`,
             guardTitle: "Mejorar Seguridad",
+            guardLabel: "Guardia",
+            guardOnDuty: "En patrulla",
+            guardReady: "Listo",
+            guardLockedLabel: "Cerrado",
             guardDesc: (t, id) => `Mejora al guardia ${id || 1} al nivel ${t}`,
             vaultTitle: "Mejorar Bóveda Principal",
             vaultDesc: (t) => `Mejora la bóveda principal al nivel ${t}`,
@@ -980,14 +972,12 @@ const translations = {
         adCloseBtn: "Cerrar ❌ (Sin recompensa)"
     },
     ru: {
+        wheelBadgeFree: "БЕСПЛАТНО",
+        wheelBadgeSpin: "КРУТИТЬ",
+
         queueStatusEmpty: "Очередь свободна",
         queueStatusOk: "Очередь активна",
         queueStatusFull: "Очередь переполнена",
-        themeBlue: "Синий",
-        themeWhite: "Светлый",
-        themeDark: "Тёмный",
-        headerDailyBtnTitle: "Достижения и Ежедневные Задания",
-        boostLiveTimerTitle: "Оставшееся время бустера",
         themeBlue: "Синий",
         themeWhite: "Светлый",
         themeDark: "Тёмный",
@@ -1076,6 +1066,7 @@ const translations = {
         insufficientFunds: "Нужны деньги",
         maxLevel: "Макс. Уровень",
         activeLabel: "Активно 🟢",
+        guardLockedLabel: "Закрыто",
         lockedLabel: "Закрыто",
         upgradeLabel: "Улучшить",
         unlockLabel: "Открыть кассу",
@@ -1096,7 +1087,7 @@ const translations = {
         tellerLabel: "Кассир",
         levelLabel: "Ур",
         levelAbbr: "Ур",
-        guardLabel: "инкассатор",
+        guardLabel: "Курьер",
         guardsLabel: "инкассаторы",
         boostOfferText: (time) => `⚡ Предложение! ${time}`,
         servingClientLabel: "Обслуживание",
@@ -1206,6 +1197,10 @@ const translations = {
             tellerTitle: "Улучшение рабочих мест кассиров",
             tellerDesc: (t, id) => `Улучшите кассу ${id || 1} до уровня ${t}`,
             guardTitle: "Улучшение службы безопасности",
+            guardLabel: "Курьер",
+            guardOnDuty: "В патруле",
+            guardReady: "Готов",
+            guardLockedLabel: "Закрыто",
             guardDesc: (t, id) => `Улучшите инкассатора ${id || 1} до уровня ${t}`,
             vaultTitle: "Расширение главного сейфа",
             vaultDesc: (t) => `Улучшите главный сейф до уровня ${t}`,
@@ -1452,10 +1447,8 @@ Object.assign(translations.he, {
             tax: { name: "אופטימיזציית מס", desc: "הנחה של 15% על עלויות שדרוגי כספרים" }
         }
     },
-    prestigeRegularBtn: "איפוס רגיל",
     prestigeAdBtn: (shares) => `🎬 שלש ל-${shares} מניות!`,
     prestigeCancelBtn: "ביטול",
-    prestigeRewardLabel: "מניות זהב שתקבל:",
     analyticsTitle: "📊 דוח מדדים ואנליטיקה",
     analyticsTotalEps: "סך רווח ממוצע לשנייה (EPS):",
     analyticsVaultUtil: "ניצולת נפח הכספת:",
@@ -1699,10 +1692,8 @@ Object.assign(translations.en, {
             tax: { name: "Tax Optimizer", desc: "15% discount on upgrading teller desks" }
         }
     },
-    prestigeRegularBtn: "Regular Prestige",
     prestigeAdBtn: (shares) => `🎬 Triple to ${shares} Shares!`,
     prestigeCancelBtn: "Cancel",
-    prestigeRewardLabel: "Golden Shares to receive:",
     analyticsTitle: "📊 Performance & Analytics Report",
     analyticsTotalEps: "Total Average Earnings Per Second (EPS):",
     analyticsVaultUtil: "Vault Volume Utilization:",
@@ -1946,10 +1937,8 @@ Object.assign(translations.es, {
             tax: { name: "Optimizar Impuestos", desc: "Descuento del 15% en la mejora de las mesas de cajeros" }
         }
     },
-    prestigeRegularBtn: "Prestigio Regular",
     prestigeAdBtn: (shares) => `🎬 ¡Triplica a ${shares} Acciones!`,
     prestigeCancelBtn: "Cancelar",
-    prestigeRewardLabel: "Acciones de Oro a recibir:",
     analyticsTitle: "📊 Informe de Rendimiento y Métricas",
     analyticsTotalEps: "Ganancias Totales Promedio por Segundo (EPS):",
     analyticsVaultUtil: "Utilización de la Capacidad de la Bóveda:",
@@ -2044,7 +2033,8 @@ Object.assign(translations.he, {
     fortuneWheelSpinning: "מסתובב...",
     fortuneWheelCooldown: (h, m) => `חוזר בעוד ${h}:${m}`,
     fortuneWheelPrizeTitle: "זכית ב",
-    fortuneWheelAdSpinBtn: "📺 סיבוב נוסף — צפה בפרסומת",
+    fortuneWheelAdSpinBtn: (left) => `📺 סיבוב נוסף (${left}/3) — צפה בפרסומת`,
+    fortuneWheelAdLimitReached: "🚫 נוצלו כל 3 סיבובי הפרסומת להיום (0/3)",
     fortuneWheelClose: "✕ סגור וחזור למשחק",
     fortuneWheelSpinHint: "👇 לחץ על הכפתור למטה כדי לסובב את הגלגל",
     wheelPrizes: {
@@ -2134,7 +2124,8 @@ Object.assign(translations.es, {
     fortuneWheelSpinning: "Girando...",
     fortuneWheelCooldown: (h, m) => `Vuelve en ${h}:${m}`,
     fortuneWheelPrizeTitle: "Ganaste",
-    fortuneWheelAdSpinBtn: "📺 Giro Extra — Ver Anuncio",
+    fortuneWheelAdSpinBtn: (left) => `📺 Giro Extra (${left}/3) — Ver Anuncio`,
+    fortuneWheelAdLimitReached: "🚫 Todos los 3 giros diarios usados (0/3)",
     fortuneWheelClose: "✕ Cerrar y Volver al Juego",
     fortuneWheelSpinHint: "👇 Presiona el botón de abajo para girar la ruleta",
     wheelPrizes: {
@@ -2191,6 +2182,8 @@ Object.assign(translations.ru, {
     analyticsLabelVault: "Заполненность сейфа:",
     analyticsTitleTellers: "Производительность кассиров",
     analyticsTitleWarnings: "Предупреждения и узкие места",
+    fortuneWheelBtn: "Колесо Фортуны",
+    fortuneWheelCooldown: (h, m) => `Вернется через ${h}:${m}`,
     fortuneWheelTitle: "Ежедневное Колесо Фортуны",
     fortuneWheelSubtitle: "Крутите раз в день и выигрывайте приз!",
     fortuneSpinHint: "👇 Нажмите кнопку ниже, чтобы крутить колесо",
@@ -2212,16 +2205,6 @@ Object.assign(translations.ru, {
     hudCash: "НАЛИЧНЫЕ",
     hudIncome: "ДОХОД/сек",
     hudShares: "АКЦИИ",
-    fortuneWheelBtn: "Колесо Фортуны",
-    fortuneWheelTitle: "Ежедневное Колесо Фортуны",
-    fortuneWheelSubtitle: "Крутите раз в день и выигрывайте приз!",
-    fortuneWheelSpinBtn: "Крутить!",
-    fortuneWheelSpinning: "Вращается...",
-    fortuneWheelCooldown: (h, m) => `Вернется через ${h}:${m}`,
-    fortuneWheelPrizeTitle: "Вы выиграли",
-    fortuneWheelAdSpinBtn: "📺 Доп. кручение — Смотреть рекламу",
-    fortuneWheelClose: "✕ Закрыть и вернуться в игру",
-    fortuneWheelSpinHint: "👇 Нажмите кнопку ниже, чтобы крутить колесо",
     wheelPrizes: {
         cash_small: "Наличные",
         cash_medium: "Средние наличные",
@@ -3551,3 +3534,59 @@ Object.assign(translations.ru, {
     advisorTipUpgradeVaultTitle: "Улучшить хранилище 🏦",
     advisorTipUpgradeVaultDesc: "Увеличьте вместимость хранилища для накопления доходов."
 });
+
+Object.assign(translations.he, {
+    fortuneWheelTitle: "גלגל המזל היומי",
+    fortuneWheelSubtitle: "סובב פעם ביום וזכה בפרסים ענקיים!",
+    fortuneWheelSpinHint: "👇 לחץ כדי לסובב את גלגל המזל",
+    fortuneWheelSpinBtn: "🎯 סובב עכשיו בחינם!",
+    fortuneWheelAdSpinBtn: "📺 סיבוב נוסף — צפה בפרסומת",
+    fortuneWheelSpinning: "מסתובב בהתרגשות... 🎡",
+    fortuneWheelPrizeTitle: "ברכות! זכית בפרס מפואר",
+    fortuneWheelClose: "✕ סגור וחזור למשחק",
+    fortuneWheelSpinHub: "סובב",
+    fortuneWheelCooldownLabel: "⏱️ סיבוב חינם הבא בעוד:"
+});
+Object.assign(translations.en, {
+    fortuneWheelTitle: "Daily Fortune Wheel",
+    fortuneWheelSubtitle: "Spin once a day to win epic rewards!",
+    fortuneWheelSpinHint: "👇 Tap the button below to spin the wheel",
+    fortuneWheelSpinBtn: "🎯 SPIN FREE NOW!",
+    fortuneWheelAdSpinBtn: (left) => `📺 Extra Spin (${left}/3) — Watch Ad`,
+    fortuneWheelAdLimitReached: "🚫 All 3 daily ad spins used (0/3)",
+    fortuneWheelSpinning: "Spinning Wheel... 🎡",
+    fortuneWheelPrizeTitle: "Congratulations! You won",
+    fortuneWheelClose: "✕ Close and Return to Bank",
+    fortuneWheelSpinHub: "SPIN",
+    fortuneWheelCooldownLabel: "⏱️ Next free spin in:"
+});
+Object.assign(translations.es, {
+    fortuneWheelTitle: "Rueda de la Fortuna",
+    fortuneWheelSubtitle: "¡Gira una vez al día y gana grandes premios!",
+    fortuneWheelSpinHint: "👇 Toca el botón para girar la rueda",
+    fortuneWheelSpinBtn: "🎯 ¡GIRAR GRATIS AHORA!",
+    fortuneWheelAdSpinBtn: "📺 Giro Extra — Ver Anuncio",
+    fortuneWheelSpinning: "Girando la rueda... 🎡",
+    fortuneWheelPrizeTitle: "¡Felicidades! Has ganado",
+    fortuneWheelClose: "✕ Cerrar y volver al juego",
+    fortuneWheelSpinHub: "GIRAR",
+    fortuneWheelCooldownLabel: "⏱️ Próximo giro gratis en:"
+});
+Object.assign(translations.ru, {
+    fortuneWheelTitle: "Колесо Фортуны",
+    fortuneWheelSubtitle: "Вращайте раз в день и выигрывайте призы!",
+    fortuneWheelSpinHint: "👇 Нажмите кнопку ниже, чтобы крутить",
+    fortuneWheelSpinBtn: "🎯 КРУТИТЬ БЕСПЛАТНО!",
+    fortuneWheelAdSpinBtn: (left) => `📺 Доп. вращение (${left}/3) — За рекламу`,
+    fortuneWheelAdLimitReached: "🚫 Все 3 спина за рекламу использованы (0/3)",
+    fortuneWheelSpinning: "Колесо крутится... 🎡",
+    fortuneWheelPrizeTitle: "Поздравляем! Ваш выигрыш",
+    fortuneWheelClose: "✕ Закрыть и вернуться",
+    fortuneWheelSpinHub: "КРУТИТЬ",
+    fortuneWheelCooldownLabel: "⏱️ Бесплатный спин через:"
+});
+
+if (typeof window !== "undefined") window.translations = translations;
+if (typeof globalThis !== "undefined") globalThis.translations = translations;
+
+

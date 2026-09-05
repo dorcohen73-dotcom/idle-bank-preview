@@ -1,3 +1,32 @@
+let lastHapticTimestamp = 0;
+
+/**
+ * Central, lightweight, battery-safe haptic tap feedback.
+ * Enforces a strict 200ms rate-limit to prevent motor heat and battery drain.
+ * Duration: 9ms (subtle, high-end mechanical tactile click).
+ */
+export function hapticTap(duration = 9) {
+    try {
+        if (typeof window !== 'undefined' && window.game && window.game.state && window.game.state.hapticsEnabled === false) {
+            return;
+        }
+        const now = Date.now();
+        if (now - lastHapticTimestamp < 200) {
+            return;
+        }
+        lastHapticTimestamp = now;
+
+        if (typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function') {
+            navigator.vibrate(duration || 9);
+        }
+    } catch (_e) {
+        // Ignore vibration errors on unsupported environments
+    }
+}
+if (typeof window !== 'undefined') {
+    window.hapticTap = hapticTap;
+}
+
 // Synth audio effects engine using browser Web Audio API
 class AudioEngine {
     constructor() {

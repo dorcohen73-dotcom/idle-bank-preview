@@ -696,7 +696,7 @@
               return;
             }
           }
-          if (e.target.className !== "collect-btn") {
+          if (!e.target.closest(".plaque-collect-btn")) {
             game.clickTeller(t.id);
           }
         });
@@ -891,7 +891,8 @@
     const hub = document.getElementById("guard-stations-hub");
     if (!hub || !window.game || !window.game.state || !Array.isArray(window.game.state.guards)) return;
     bindHubClickListener();
-    const t = window.translations && window.translations[lang] ? window.translations[lang] : {};
+    const currentLang = lang || window.game && window.game.state && window.game.state.language || "he";
+    const t = typeof translations !== "undefined" && translations[currentLang] ? translations[currentLang] : window.translations && window.translations[currentLang] || window.translations && window.translations.he || {};
     const unlockCosts = window.GAME_CONFIG && window.GAME_CONFIG.GUARD_UNLOCK_COSTS || [0, 2500, 7e4];
     const guardsHtml = window.game.state.guards.map((g, idx) => {
       const cost = unlockCosts[idx] || 0;
@@ -905,7 +906,7 @@
                     </div>
                     <div class="guard-bay-content">
                         <div class="guard-bay-name">${t.guardLabel || "\u05D1\u05DC\u05D3\u05E8"} ${g.id + 1}</div>
-                        <div class="guard-bay-lvl-pill">${t.levelLabel || "\u05E8\u05DE\u05D4"} ${g.level || 1}</div>
+                        <div class="guard-bay-lvl-pill">${t.levelAbbr || t.levelLabel || "Lvl"} ${g.level || 1}</div>
                     </div>
                 </div>
             `;
@@ -919,7 +920,7 @@
                         <div class="guard-bay-name-row">
                             <span class="guard-bay-name">${t.guardLabel || "\u05D1\u05DC\u05D3\u05E8"} ${g.id + 1}</span>
                         </div>
-                        <div class="guard-bay-status locked">${t.guardLockedLabel || "\u05E0\u05E2\u05D5\u05DC"}</div>
+                        <div class="guard-bay-status locked">${t.guardLockedLabel || t.lockedLabel || "Locked"}</div>
                     </div>
                 </div>
             `;
@@ -1097,9 +1098,10 @@
         DOM_CACHE.vaultFill.style.width = `${vPercent}%`;
         DOM_CACHE.vaultFill.setAttribute("aria-valuenow", Math.round(vPercent));
       }
-      if (typeof window.updateVaultMiniBar === "function") {
-        window.updateVaultMiniBar(vPercent, vaultData.cashStored > 0, vaultData.cashStored, vaultData.capacity, vaultData.yieldPerHour);
-      }
+    }
+    if (typeof window.updateVaultMiniBar === "function") {
+      const vLvl = window.game && window.game.state && window.game.state.vaultLevel || vaultData && vaultData.level || 1;
+      window.updateVaultMiniBar(vPercent, vaultData.cashStored > 0, vaultData.cashStored, vaultData.capacity, vaultData.yieldPerHour, vLvl);
     }
     if (vPercent >= 95) {
       if (DOM_CACHE.vaultGraphic) DOM_CACHE.vaultGraphic.classList.add("vault-full");
@@ -2210,11 +2212,15 @@
     var btnLabels = { he: "\u05D4\u05D1\u05E0\u05EA\u05D9!", en: "Got it!", es: "\xA1Entendido!", ru: "\u041F\u043E\u043D\u044F\u043B!" };
     var tipBtn = document.getElementById("discovery-tip-btn");
     if (tipBtn) tipBtn.textContent = btnLabels[lang] || "Got it!";
+    panel.style.display = "flex";
     panel.classList.add("visible");
   }
   function _dismissDiscoveryTip() {
     var panel = document.getElementById("discovery-tip-panel");
-    if (panel) panel.classList.remove("visible");
+    if (panel) {
+      panel.classList.remove("visible");
+      panel.style.display = "none";
+    }
     _discoveryActive = false;
     if (_discoveryQueue.length > 0) setTimeout(_nextDiscoveryTip, 500);
   }
@@ -2266,6 +2272,10 @@
     const tObj = translations[lang];
     const sharesGained = game.calculatePrestigeShares();
     const elTitle = document.getElementById("prestige-modal-title");
+    const elDesc = document.getElementById("prestige-modal-text");
+    if (elDesc) {
+      elDesc.innerText = tObj.branches && tObj.branches.prestigeDesc ? tObj.branches.prestigeDesc : tObj.prestigeModalText || "Reset progress in this branch to claim Golden Shares.";
+    }
     const elGained = document.getElementById("prestige-shares-gained");
     const elDoubled = document.getElementById("prestige-shares-doubled");
     const elAdBtn = document.getElementById("prestige-ad-btn");
@@ -2601,7 +2611,14 @@
     const adBtn = document.getElementById("weekly-ad-btn");
     const closeBtn = document.getElementById("weekly-close-btn");
     const closeX = document.getElementById("weekly-modal-close-x");
-    if (closeX) closeX.onclick = () => modal.classList.remove("active");
+    if (closeX) {
+      closeX.onclick = () => {
+        initSound2();
+        modal.classList.remove("active");
+        game.state.lastWeeklyReward = Date.now();
+        game.saveGame();
+      };
+    }
     if (adBtn) {
       if (AdService.isInCooldown()) {
         adBtn.style.display = "none";
@@ -2778,15 +2795,22 @@
   }
   function _applyLoginReward(reward) {
     if (!reward) return;
+    const lang = window.game && window.game.state && window.game.state.language || "en";
+    const tObj = typeof translations !== "undefined" && translations[lang] ? translations[lang] : translations.he;
     if (reward.type === "cash") {
       window.game.addCash(Math.round(reward.value));
       spawnFloating("+" + formatMoney(reward.value), window.innerWidth / 2, window.innerHeight / 2, "green");
     } else if (reward.type === "boost") {
       window.game.addBoost2x(reward.value / 3600);
-      spawnFloating("BOOST x2 +" + Math.round(reward.value / 60) + "min", window.innerWidth / 2, window.innerHeight / 2, "gold");
+      const mins = Math.round(reward.value / 60);
+      const lm = tObj.loginModal || translations.en && translations.en.loginModal;
+      const boostTxt = lm && typeof lm.boostLabel === "function" ? lm.boostLabel(mins) : "+" + mins + " min Boost x2";
+      spawnFloating(boostTxt, window.innerWidth / 2, window.innerHeight / 2, "gold");
     } else if (reward.type === "gold" || reward.type === "shares") {
       window.game.addShares(reward.value);
-      spawnFloating("+" + reward.value + " Shares", window.innerWidth / 2, window.innerHeight / 2, "gold");
+      const sharesUnit = tObj.goldSharesUnit || " " + (tObj.sharesLabel || "Shares");
+      const sharesTxt = "+" + reward.value + (sharesUnit.startsWith(" ") ? sharesUnit : " " + sharesUnit);
+      spawnFloating(sharesTxt, window.innerWidth / 2, window.innerHeight / 2, "gold");
     }
     window.game.state.pendingLoginReward = null;
     window.game.saveGame();
@@ -2821,6 +2845,7 @@
     setTimeout(() => {
       line2.style.opacity = "1";
       line3.style.opacity = "1";
+      if (typeof window.hapticTap === "function") window.hapticTap(20);
       ["\u{1F386}", "\u2728", "\u{1F31F}", "\u{1F4AB}", "\u{1F387}"].forEach(function(emoji, i) {
         setTimeout(function() {
           spawnFloating(emoji, Math.random() * window.innerWidth * 0.8 + window.innerWidth * 0.1, window.innerHeight * 0.3, "gold");
@@ -2862,24 +2887,46 @@
   function updateFortuneWheelBtnState() {
     const btn = document.getElementById("fortune-wheel-btn");
     if (!btn) return;
+    if (!window.game || !window.game.state) return;
+    const now = Date.now();
     const lastSpin = game.state && game.state.lastSpinTime || 0;
-    const canSpin = Date.now() - lastSpin >= 864e5;
-    btn.classList.toggle("fortune-wheel-ready", canSpin);
+    const canFreeSpin = now - lastSpin >= 864e5;
+    const MAX_AD_SPINS_PER_DAY = 3;
+    const lastAdSpin = game.state.lastAdSpinTime || 0;
+    const currentDayAdSpins = now - lastAdSpin < 864e5 ? game.state.wheelAdSpinsCount || 0 : 0;
+    const adSpinsLeft = Math.max(0, MAX_AD_SPINS_PER_DAY - currentDayAdSpins);
+    const canAdSpin = adSpinsLeft > 0;
+    const canAnySpin = canFreeSpin || canAdSpin;
+    btn.classList.toggle("fortune-wheel-ready", canAnySpin);
+    btn.classList.toggle("fortune-wheel-free", canFreeSpin);
+    btn.classList.toggle("fortune-wheel-ad-ready", !canFreeSpin && canAdSpin);
+    const badge = document.getElementById("fortune-wheel-badge");
+    if (badge) {
+      if (canFreeSpin) {
+        badge.textContent = "!";
+        badge.style.display = "flex";
+      } else if (canAdSpin) {
+        badge.textContent = "\u{1F3AC}";
+        badge.style.display = "flex";
+      } else {
+        badge.style.display = "none";
+      }
+    }
   }
   function openFortuneWheel() {
     initSound2();
     const lang = game.state && game.state.language || "en";
-    const tObj = translations[lang] || translations.en;
+    const tObj = translations[lang] || translations.he || translations.en;
     const modal = document.getElementById("fortune-wheel-modal");
     if (!modal) return;
-    const titleEl = document.getElementById("fortune-wheel-title");
+    const titleEl = document.getElementById("fortune-wheel-title-text") || document.getElementById("fortune-wheel-title");
     if (titleEl) titleEl.textContent = tObj.fortuneWheelTitle || "\u05D2\u05DC\u05D2\u05DC \u05D4\u05DE\u05D6\u05DC \u05D4\u05D9\u05D5\u05DE\u05D9";
     const subtitleEl = document.getElementById("fortune-wheel-subtitle");
-    if (subtitleEl) subtitleEl.textContent = tObj.fortuneWheelSubtitle || "\u05E1\u05D5\u05D1\u05D1 \u05E4\u05E2\u05DD \u05D1\u05D9\u05D5\u05DD \u05D5\u05D6\u05DB\u05D4 \u05D1\u05E4\u05E8\u05E1!";
-    const spinHintEl = document.getElementById("fortune-spin-hint");
-    if (spinHintEl) spinHintEl.textContent = tObj.fortuneWheelSpinHint || "\u{1F447} \u05DC\u05D7\u05E5 \u05E2\u05DC \u05D4\u05DB\u05E4\u05EA\u05D5\u05E8 \u05DC\u05DE\u05D8\u05D4 \u05DB\u05D3\u05D9 \u05DC\u05E1\u05D5\u05D1\u05D1 \u05D0\u05EA \u05D4\u05D2\u05DC\u05D2\u05DC";
+    if (subtitleEl) subtitleEl.textContent = tObj.fortuneWheelSubtitle || "\u05E1\u05D5\u05D1\u05D1 \u05E4\u05E2\u05DD \u05D1\u05D9\u05D5\u05DD \u05D5\u05D6\u05DB\u05D4 \u05D1\u05E4\u05E8\u05E1\u05D9\u05DD \u05E2\u05E0\u05E7\u05D9\u05D9\u05DD!";
     const closeBtnEl = document.getElementById("fortune-close-btn");
     if (closeBtnEl) closeBtnEl.textContent = tObj.fortuneWheelClose || "\u2715 \u05E1\u05D2\u05D5\u05E8 \u05D5\u05D7\u05D6\u05D5\u05E8 \u05DC\u05DE\u05E9\u05D7\u05E7";
+    const hubTextEl = document.getElementById("fortune-hub-text");
+    if (hubTextEl) hubTextEl.textContent = tObj.fortuneWheelSpinHub || "\u05E1\u05D5\u05D1\u05D1";
     const now = Date.now();
     const lastSpin = game.state.lastSpinTime || 0;
     const cooldownMs = 864e5;
@@ -2887,6 +2934,8 @@
     const canSpin = timeLeft <= 0;
     let adSpinGranted = false;
     const spinBtn = document.getElementById("fortune-spin-btn");
+    const adSpinBtn = document.getElementById("fortune-ad-spin-btn");
+    const hubSpinBtn = document.getElementById("fortune-hub-spin-btn");
     const cooldownEl = document.getElementById("fortune-cooldown");
     const resultEl = document.getElementById("fortune-result");
     if (resultEl) resultEl.style.display = "none";
@@ -2894,227 +2943,265 @@
       if (num < 1e3) return "$" + Math.ceil(num);
       const i = Math.floor(Math.log10(num) / 3);
       const suffixes = ["", "K", "M", "B", "T", "Qa", "Qi", "Sx", "Sp", "Oc", "No", "Dc", "Ud", "Dd"];
-      const suffix = suffixes[i] || "?";
+      const suffix = suffixes[i] || "";
       const rawVal = num / Math.pow(10, i * 3);
-      return "$" + Math.ceil(rawVal) + suffix;
+      return "$" + (rawVal < 10 ? rawVal.toFixed(1) : Math.ceil(rawVal)) + suffix;
     }
     const segmentsContainer = document.getElementById("wheel-segments-container");
     const wheelGraphic = document.querySelector(".fortune-wheel-graphic");
     if (segmentsContainer && wheelGraphic) {
       segmentsContainer.innerHTML = "";
-      let currentAngle = 0;
-      const colors = ["#dfab29", "#10b981", "#3b82f6", "#a855f7", "#ef4444", "#06b6d4"];
-      let gradientString = "conic-gradient(";
+      const wedgeColors = [
+        "#b45309 0deg 60deg",
+        // 1: Gold / Bronze (Cash Small)
+        "#1d4ed8 60deg 120deg",
+        // 2: Royal Sapphire (Shares 15)
+        "#15803d 120deg 180deg",
+        // 3: Rich Emerald (Cash Medium)
+        "#7e22ce 180deg 240deg",
+        // 4: Velvet Purple (Cash Big)
+        "#0f766e 240deg 300deg",
+        // 5: Ocean Teal (Shares 5)
+        "#c2410c 300deg 360deg"
+        // 6: Solar Orange (Boost 2x)
+      ];
+      wheelGraphic.style.background = `conic-gradient(${wedgeColors.join(", ")})`;
       GAME_CONFIG.WHEEL_PRIZES.forEach((p, index) => {
         if (index >= 6) return;
-        const sliceAngle = p.weight / 100 * 360;
-        const startAngle = currentAngle;
-        const endAngle = currentAngle + sliceAngle;
-        gradientString += `${colors[index]} ${startAngle}deg ${endAngle}deg${index === 5 ? "" : ", "}`;
+        const middleAngle = index * 60 + 30;
         const seg = document.createElement("div");
         seg.className = `wheel-seg seg-${index + 1}`;
-        const middleAngle = startAngle + sliceAngle / 2;
-        seg.style.transform = `rotate(${middleAngle}deg) translateY(-115px)`;
+        seg.style.transform = `rotate(${middleAngle}deg) translateY(-68px)`;
         let icon = "\u{1F381}";
         let text = "";
         if (p.type === "cash") {
-          icon = p.label === "cash_small" ? "\u{1F4B0}" : p.label === "cash_medium" ? "\u{1F4B5}" : "\u{1F4B8}";
+          icon = p.label === "cash_small" ? "\u{1FA99}" : p.label === "cash_medium" ? "\u{1F4B5}" : "\u{1F4B8}";
           const eps = game.getEarningsPerSecond();
           const timeAmount = 3600 * eps * p.value;
           const pct = p.label === "cash_big" ? 0.3 : p.label === "cash_medium" ? 0.2 : 0.1;
           const pctAmount = Math.round(game.state.cash * pct);
-          text = `+${formatShortAmount(Math.max(timeAmount, pctAmount))}`;
+          text = formatShortAmount(Math.max(timeAmount, pctAmount));
         } else if (p.type === "boost") {
           icon = "\u26A1";
-          text = `+${p.value}h`;
+          text = `+${p.value}H`;
         } else if (p.type === "shares") {
-          icon = "\u{1F4C8}";
+          icon = "\u2709\uFE0F";
           const isSmall = p.label === "shares_1";
           let sharesAmount = Math.max(p.value, Math.floor((game.state.shares || 0) * (isSmall ? 0.25 : 0.5)));
           sharesAmount = Math.min(1e4, sharesAmount);
           text = `+${sharesAmount >= 1e3 ? sharesAmount / 1e3 + "K" : sharesAmount}`;
         }
-        const isNarrow = p.weight <= 5;
-        const textSize = isNarrow ? "0.9rem" : "1.15rem";
-        const iconSize = isNarrow ? "1.2rem" : "1.6rem";
-        const gapSize = isNarrow ? "4px" : "6px";
+        const isBottomHalf = middleAngle > 100 && middleAngle < 280;
+        const uprightTransform = isBottomHalf ? "transform: rotate(180deg);" : "";
         seg.innerHTML = `
-                <div style="display:flex; flex-direction:row; align-items:center; gap:${gapSize}; transform: rotate(90deg); text-shadow: 1px 1px 4px rgba(0,0,0,0.8);">
-                    <span style="font-size:${iconSize}; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.6));">${icon}</span>
-                    <span dir="ltr" style="font-size:${textSize}; font-weight:900;">${text}</span>
-                </div>
-            `;
+                    <div class="wheel-seg-inner" style="${uprightTransform}">
+                        <span class="seg-icon">${icon}</span>
+                        <span class="seg-val" dir="ltr">${text}</span>
+                    </div>
+                `;
         segmentsContainer.appendChild(seg);
-        currentAngle = endAngle;
       });
-      gradientString += ")";
-      wheelGraphic.style.background = gradientString;
     }
-    if (spinBtn) {
-      if (canSpin) {
-        spinBtn.disabled = false;
-        spinBtn.textContent = tObj.fortuneWheelSpinBtn || "\u05E1\u05D5\u05D1\u05D1!";
+    function updateButtonStates() {
+      const curNow = Date.now();
+      const curLastSpin = game.state.lastSpinTime || 0;
+      const curTimeLeft = 864e5 - (curNow - curLastSpin);
+      const curCanSpin = curTimeLeft <= 0;
+      const today = (/* @__PURE__ */ new Date()).toDateString();
+      if (game.state.wheelAdSpinsDate !== today) {
+        game.state.wheelAdSpinsDate = today;
+        game.state.wheelAdSpinsCount = 0;
+      }
+      const currentAdSpinsUsed = game.state.wheelAdSpinsCount || 0;
+      const currentAdSpinsLeft = Math.max(0, 3 - currentAdSpinsUsed);
+      if (curCanSpin || adSpinGranted) {
+        if (spinBtn) {
+          spinBtn.disabled = false;
+          spinBtn.style.display = "block";
+          spinBtn.textContent = tObj.fortuneWheelSpinBtn || "\u{1F3AF} \u05E1\u05D5\u05D1\u05D1 \u05E2\u05DB\u05E9\u05D9\u05D5 \u05D1\u05D7\u05D9\u05E0\u05DD!";
+        }
+        if (hubSpinBtn) hubSpinBtn.disabled = false;
+        if (adSpinBtn) {
+          adSpinBtn.style.display = "none";
+          adSpinBtn.classList.remove("disabled-limit");
+        }
         if (cooldownEl) cooldownEl.style.display = "none";
-      } else {
-        spinBtn.disabled = true;
-        const hoursLeft = Math.floor(timeLeft / 36e5);
-        const minsLeft = Math.floor(timeLeft % 36e5 / 6e4);
-        const hStr = hoursLeft.toString().padStart(2, "0");
-        const mStr = minsLeft.toString().padStart(2, "0");
-        const cdText = tObj.fortuneWheelCooldown && tObj.fortuneWheelCooldown(hStr, mStr) || `${hStr}:${mStr}`;
-        spinBtn.textContent = cdText;
+      } else if (currentAdSpinsLeft > 0) {
+        if (spinBtn) spinBtn.style.display = "none";
+        if (adSpinBtn) {
+          adSpinBtn.style.display = "flex";
+          adSpinBtn.disabled = false;
+          adSpinBtn.classList.remove("disabled-limit");
+          const adTextEl = document.getElementById("fortune-ad-spin-text");
+          const adBtnStr = typeof tObj.fortuneWheelAdSpinBtn === "function" ? tObj.fortuneWheelAdSpinBtn(currentAdSpinsLeft) : `\u{1F4FA} \u05E1\u05D9\u05D1\u05D5\u05D1 \u05E0\u05D5\u05E1\u05E3 (${currentAdSpinsLeft}/3) \u2014 \u05E6\u05E4\u05D4 \u05D1\u05E4\u05E8\u05E1\u05D5\u05DE\u05EA`;
+          if (adTextEl) adTextEl.textContent = adBtnStr;
+        }
+        if (hubSpinBtn) hubSpinBtn.disabled = false;
         if (cooldownEl) {
-          cooldownEl.textContent = cdText;
-          cooldownEl.style.display = "block";
+          const hoursLeft = Math.floor(curTimeLeft / 36e5);
+          const minsLeft = Math.floor(curTimeLeft % 36e5 / 6e4);
+          const hStr = hoursLeft.toString().padStart(2, "0");
+          const mStr = minsLeft.toString().padStart(2, "0");
+          cooldownEl.textContent = `${tObj.fortuneWheelCooldownLabel || "\u23F1\uFE0F \u05E1\u05D9\u05D1\u05D5\u05D1 \u05D7\u05D9\u05E0\u05DD \u05D4\u05D1\u05D0 \u05D1\u05E2\u05D5\u05D3:"} ${hStr}:${mStr}`;
+          cooldownEl.style.display = "inline-block";
+          if (curTimeLeft > 0 && curTimeLeft <= 36e5) {
+            cooldownEl.style.color = "#ef4444";
+            cooldownEl.style.fontWeight = "bold";
+          } else {
+            cooldownEl.style.color = "";
+            cooldownEl.style.fontWeight = "";
+          }
+        }
+      } else {
+        if (spinBtn) spinBtn.style.display = "none";
+        if (adSpinBtn) {
+          adSpinBtn.style.display = "flex";
+          adSpinBtn.disabled = true;
+          adSpinBtn.classList.add("disabled-limit");
+          const adTextEl = document.getElementById("fortune-ad-spin-text");
+          if (adTextEl) adTextEl.textContent = tObj.fortuneWheelAdLimitReached || "\u{1F6AB} \u05E0\u05D5\u05E6\u05DC\u05D5 \u05DB\u05DC 3 \u05E1\u05D9\u05D1\u05D5\u05D1\u05D9 \u05D4\u05E4\u05E8\u05E1\u05D5\u05DE\u05EA \u05DC\u05D4\u05D9\u05D5\u05DD (0/3)";
+        }
+        if (hubSpinBtn) hubSpinBtn.disabled = true;
+        if (cooldownEl) {
+          const hoursLeft = Math.floor(curTimeLeft / 36e5);
+          const minsLeft = Math.floor(curTimeLeft % 36e5 / 6e4);
+          const hStr = hoursLeft.toString().padStart(2, "0");
+          const mStr = minsLeft.toString().padStart(2, "0");
+          cooldownEl.textContent = `${tObj.fortuneWheelCooldownLabel || "\u23F1\uFE0F \u05E1\u05D9\u05D1\u05D5\u05D1 \u05D7\u05D9\u05E0\u05DD \u05D4\u05D1\u05D0 \u05D1\u05E2\u05D5\u05D3:"} ${hStr}:${mStr}`;
+          cooldownEl.style.display = "inline-block";
+          if (curTimeLeft > 0 && curTimeLeft <= 36e5) {
+            cooldownEl.style.color = "#ef4444";
+            cooldownEl.style.fontWeight = "bold";
+          } else {
+            cooldownEl.style.color = "";
+            cooldownEl.style.fontWeight = "";
+          }
         }
       }
-      spinBtn.onclick = () => {
-        if (spinBtn.disabled) return;
-        initSound2();
-        const hintEl = document.getElementById("fortune-spin-hint");
-        if (hintEl) hintEl.style.display = "none";
+    }
+    updateButtonStates();
+    let isSpinning = false;
+    const triggerSpinAction = () => {
+      initSound2();
+      if (typeof window.hapticTap === "function") window.hapticTap();
+      const curNow = Date.now();
+      const curLastSpin = game.state.lastSpinTime || 0;
+      const isFreeReady = curNow - curLastSpin >= 864e5;
+      if (!isFreeReady && !adSpinGranted) {
+        if (adSpinBtn) adSpinBtn.click();
+        return;
+      }
+      isSpinning = true;
+      if (spinBtn) {
         spinBtn.disabled = true;
-        spinBtn.textContent = tObj.fortuneWheelSpinning || "\u05DE\u05E1\u05EA\u05D5\u05D1\u05D1...";
-        const prizePool = GAME_CONFIG.WHEEL_PRIZES;
-        const prize = _wheelWeightedRandom(prizePool);
-        let currentAngle = 0;
-        let targetAngle = 0;
-        for (let i = 0; i < GAME_CONFIG.WHEEL_PRIZES.length; i++) {
-          const p = GAME_CONFIG.WHEEL_PRIZES[i];
-          const sliceAngle = p.weight / 100 * 360;
-          if (p === prize) {
-            const minAngle = currentAngle + sliceAngle * 0.1;
-            const maxAngle = currentAngle + sliceAngle * 0.9;
-            const landedAngle = minAngle + Math.random() * (maxAngle - minAngle);
-            targetAngle = 360 - landedAngle;
-            break;
-          }
-          currentAngle += sliceAngle;
+        spinBtn.textContent = tObj.fortuneWheelSpinning || "\u05DE\u05E1\u05EA\u05D5\u05D1\u05D1 \u05D1\u05D4\u05EA\u05E8\u05D2\u05E9\u05D5\u05EA... \u{1F3A1}";
+      }
+      if (adSpinBtn) adSpinBtn.disabled = true;
+      if (hubSpinBtn) hubSpinBtn.disabled = true;
+      const prizePool = GAME_CONFIG.WHEEL_PRIZES;
+      const prize = _wheelWeightedRandom(prizePool);
+      const prizeIndex = prizePool.indexOf(prize);
+      const centerSliceAngle = prizeIndex * 60 + 30;
+      const jitter = Math.random() * 16 - 8;
+      const landedAngle = centerSliceAngle + jitter;
+      const targetAngle = 360 - landedAngle;
+      const wheelEl = document.getElementById("fortune-wheel-graphic");
+      if (wheelEl) {
+        const prevAngle = wheelEl._currentRotation || 0;
+        const startBase = prevAngle % 360;
+        wheelEl.style.transition = "none";
+        wheelEl.style.transform = `rotate(${startBase}deg)`;
+        void wheelEl.offsetWidth;
+        wheelEl.style.transition = "transform 4.2s cubic-bezier(0.12, 0.86, 0.15, 1)";
+        const totalRotation = startBase + 2160 + targetAngle;
+        wheelEl.style.transform = `rotate(${totalRotation}deg)`;
+        wheelEl._currentRotation = totalRotation;
+      }
+      setTimeout(() => {
+        isSpinning = false;
+        let prizeText = "";
+        const lang2 = game.state && game.state.language || "en";
+        const tObj2 = translations[lang2] || translations.he || translations.en;
+        if (prize.type === "cash") {
+          const eps = game.getEarningsPerSecond();
+          const timeAmount = 3600 * eps * prize.value;
+          const pctAmount = Math.round(game.state.cash * (prize.label === "cash_small" ? 0.1 : prize.label === "cash_medium" ? 0.2 : 0.3));
+          const amount = Math.max(timeAmount, pctAmount);
+          game.addCash(amount);
+          prizeText = `+${formatMoney(amount)}`;
+          spawnFloating(`+${formatMoney(amount)}`, window.innerWidth / 2, window.innerHeight / 2 - 60, "green");
+        } else if (prize.type === "boost") {
+          game.addBoost2x(prize.value);
+          const boostHrs = prize.value;
+          prizeText = typeof tObj2.boostLabel === "function" ? tObj2.boostLabel(boostHrs * 60) : `+${boostHrs}h Boost x2`;
+          spawnFloating(`\u26A1 +${boostHrs}h`, window.innerWidth / 2, window.innerHeight / 2 - 60, "gold");
+        } else if (prize.type === "gold" || prize.type === "shares") {
+          const isSmall = prize.label === "gold_1" || prize.label === "shares_1";
+          let sharesAmount = Math.max(prize.value, Math.floor((game.state.shares || 0) * (isSmall ? 0.25 : 0.5)));
+          sharesAmount = Math.min(1e4, sharesAmount);
+          game.addShares(sharesAmount);
+          const sharesLabel = `+${sharesAmount}`;
+          prizeText = `${sharesLabel} ${tObj2.goldSharesLabel || "\u05DE\u05E0\u05D9\u05D5\u05EA \u05D6\u05D4\u05D1"}`;
+          spawnFloating(`\u{1F4C8} ${sharesLabel}`, window.innerWidth / 2, window.innerHeight / 2 - 60, "gold");
         }
-        const wheelEl = document.getElementById("fortune-wheel-graphic");
-        if (wheelEl) {
-          wheelEl.classList.remove("wheel-spin");
-          const totalRotation = 1800 + targetAngle;
-          wheelEl.style.setProperty("--stop-angle", `${totalRotation}deg`);
-          void wheelEl.offsetWidth;
-          wheelEl.classList.add("wheel-spin");
+        if (adSpinGranted) {
+          game.state.lastAdSpinTime = Date.now();
+          game.state.wheelAdSpinsCount = (game.state.wheelAdSpinsCount || 0) + 1;
+          adSpinGranted = false;
+        } else {
+          game.state.lastSpinTime = Date.now();
         }
-        setTimeout(() => {
-          let prizeText = "";
-          const lang2 = game.state && game.state.language || "en";
-          const tObj2 = translations[lang2] || translations.en;
-          const prizeLabel = tObj2.wheelPrizes && tObj2.wheelPrizes[prize.label] || prize.label;
-          if (prize.type === "cash") {
-            const eps = game.getEarningsPerSecond();
-            const timeAmount = 3600 * eps * prize.value;
-            const pctAmount = Math.round(game.state.cash * (prize.label === "cash_small" ? 0.1 : prize.label === "cash_medium" ? 0.2 : 0.3));
-            const amount = Math.max(timeAmount, pctAmount);
-            game.addCash(amount);
-            prizeText = `${prizeLabel}: +${formatMoney(amount)}`;
-            spawnFloating(`+${formatMoney(amount)}`, window.innerWidth / 2, window.innerHeight / 2 - 60, "green");
-          } else if (prize.type === "boost") {
-            game.addBoost2x(prize.value);
-            prizeText = `${prizeLabel}: +${prize.value}h BOOST`;
-            spawnFloating(`\u26A1 +${prize.value}h`, window.innerWidth / 2, window.innerHeight / 2 - 60, "gold");
-          } else if (prize.type === "gold" || prize.type === "shares") {
-            const isSmall = prize.label === "gold_1" || prize.label === "shares_1";
-            let sharesAmount = Math.max(prize.value, Math.floor((game.state.shares || 0) * (isSmall ? 0.25 : 0.5)));
-            sharesAmount = Math.min(1e4, sharesAmount);
-            game.addShares(sharesAmount);
-            const sharesLabel = `+${sharesAmount}`;
-            prizeText = `${prizeLabel}: ${sharesLabel} ${tObj2.goldSharesLabel || "Gold Shares"}`;
-            const icon = prize.type === "gold" ? "\u{1F947}" : "\u{1F4C8}";
-            spawnFloating(`${icon} ${sharesLabel}`, window.innerWidth / 2, window.innerHeight / 2 - 60, "gold");
-          }
-          const wasAdSpin = adSpinGranted;
-          if (wasAdSpin) {
-            game.state.lastAdSpinTime = Date.now();
-            adSpinGranted = false;
-          } else {
-            game.state.lastSpinTime = Date.now();
-          }
-          game.saveGame();
-          updateFortuneWheelBtnState();
-          draw();
-          showDiscoveryTip("fortune");
-          if (resultEl) {
-            const titleText = (tObj2.fortuneWheelPrizeTitle || "\u05D6\u05DB\u05D9\u05EA \u05D1") + ":";
-            resultEl.innerHTML = `
-                        <div class="wheel-result-title">\u{1F451} ${titleText}</div>
-                        <div class="wheel-result-prize-container">
-                            <div class="laurel laurel-left">\u{1F33F}</div>
-                            <div class="wheel-result-prize">${prizeText}</div>
-                            <div class="laurel laurel-right">\u{1F33F}</div>
+        game.saveGame();
+        updateFortuneWheelBtnState();
+        draw();
+        showDiscoveryTip("fortune");
+        if (resultEl) {
+          resultEl.innerHTML = `
+                        <div class="wheel-win-top-row">
+                            <span class="wheel-win-crown">\u{1F451}</span>
+                            <span class="wheel-win-headline">${tObj2.fortuneWheelPrizeTitle || "\u05D1\u05E8\u05DB\u05D5\u05EA! \u05D6\u05DB\u05D9\u05EA \u05D1\u05E4\u05E8\u05E1 \u05DE\u05E4\u05D5\u05D0\u05E8"}</span>
+                        </div>
+                        <div class="wheel-win-box">
+                            <span class="laurel laurel-left">\u{1F33F}</span>
+                            <strong class="wheel-win-amount">${prizeText}</strong>
+                            <span class="laurel laurel-right">\u{1F33F}</span>
                         </div>
                     `;
-            resultEl.style.display = "block";
-          }
-          const spinBtn2 = document.getElementById("fortune-spin-btn");
-          if (spinBtn2) {
-            const lastSpin2 = game.state && game.state.lastSpinTime || 0;
-            let newTimeLeft2 = 864e5 - (Date.now() - lastSpin2);
-            if (newTimeLeft2 < 0) newTimeLeft2 = 0;
-            const h2 = Math.floor(newTimeLeft2 / 36e5).toString().padStart(2, "0");
-            const m2 = Math.floor(newTimeLeft2 % 36e5 / 6e4).toString().padStart(2, "0");
-            const cd2 = tObj2.fortuneWheelCooldown ? tObj2.fortuneWheelCooldown(h2, m2) : `${h2}:${m2}`;
-            spinBtn2.textContent = cd2;
-            if (cooldownEl) {
-              cooldownEl.textContent = cd2;
-              cooldownEl.style.display = "block";
-            }
-          }
-          const adSpinEl = document.getElementById("fortune-ad-spin-btn");
-          if (adSpinEl) {
-            adSpinEl.disabled = false;
-            adSpinEl.style.display = "block";
-            adSpinEl.textContent = tObj2.fortuneWheelAdSpinBtn || "\u{1F4FA} \u05E1\u05D9\u05D1\u05D5\u05D1 \u05E0\u05D5\u05E1\u05E3 \u2014 \u05E6\u05E4\u05D4 \u05D1\u05E4\u05E8\u05E1\u05D5\u05DE\u05EA";
-          }
-        }, 4e3);
-      };
-    }
-    const adSpinBtn = document.getElementById("fortune-ad-spin-btn");
+          resultEl.style.display = "flex";
+        }
+        updateButtonStates();
+      }, 4100);
+    };
+    if (spinBtn) spinBtn.onclick = triggerSpinAction;
+    if (hubSpinBtn) hubSpinBtn.onclick = triggerSpinAction;
     if (adSpinBtn) {
-      adSpinBtn.disabled = false;
-      if (!canSpin) {
-        adSpinBtn.style.display = "block";
-        adSpinBtn.textContent = tObj.fortuneWheelAdSpinBtn || "\u{1F4FA} \u05E1\u05D9\u05D1\u05D5\u05D1 \u05E0\u05D5\u05E1\u05E3 \u2014 \u05E6\u05E4\u05D4 \u05D1\u05E4\u05E8\u05E1\u05D5\u05DE\u05EA";
-      } else {
-        adSpinBtn.style.display = "none";
-      }
       adSpinBtn.onclick = () => {
-        if (adSpinBtn.disabled) return;
+        if (adSpinBtn.disabled || isSpinning) return;
+        initSound2();
+        if (typeof window.hapticTap === "function") window.hapticTap();
         adSpinBtn.disabled = true;
-        adSpinBtn.style.display = "none";
         playAd(() => {
           adSpinGranted = true;
-          const sp = document.getElementById("fortune-spin-btn");
-          if (sp) {
-            sp.disabled = false;
-            const lang3 = game.state && game.state.language || "en";
-            const t3 = translations[lang3] || translations.en;
-            sp.textContent = t3.fortuneWheelSpinBtn || "\u05E1\u05D5\u05D1\u05D1!";
-          }
           if (resultEl) resultEl.style.display = "none";
-          if (cooldownEl) cooldownEl.style.display = "none";
-          const hintEl2 = document.getElementById("fortune-spin-hint");
-          if (hintEl2) hintEl2.style.display = "block";
+          updateButtonStates();
+          triggerSpinAction();
         }, "short");
       };
     }
-    activateModal(modal);
-    modal.onclick = (e) => {
-      if (e.target === modal) {
-        initSound2();
-        modal.classList.remove("active");
-      }
+    const closeHandler = () => {
+      if (isSpinning) return;
+      if (typeof window.hapticTap === "function") window.hapticTap();
+      if (window.gameAudio && typeof window.gameAudio.playClick === "function") window.gameAudio.playClick();
+      modal.classList.remove("active");
     };
     const closeBtn = document.getElementById("fortune-close-btn");
-    if (closeBtn) {
-      closeBtn.onclick = () => {
-        initSound2();
-        modal.classList.remove("active");
-      };
-    }
+    if (closeBtn) closeBtn.onclick = closeHandler;
+    const closeXBtn = document.getElementById("fortune-close-x-top");
+    if (closeXBtn) closeXBtn.onclick = closeHandler;
+    modal.onclick = (e) => {
+      if (e.target === modal) closeHandler();
+    };
+    activateModal(modal);
   }
   if (typeof window !== "undefined") {
     window.openWeeklyRewardModal = openWeeklyRewardModal;
@@ -3206,7 +3293,7 @@
         }
       }
       fortuneWheelBtnTimer += cappedDt;
-      if (fortuneWheelBtnTimer >= 30) {
+      if (fortuneWheelBtnTimer >= 2) {
         fortuneWheelBtnTimer = 0;
         updateFortuneWheelBtnState();
       }
@@ -3236,6 +3323,17 @@
         }
         const _missionsReady = (game.state.missions || []).filter((m) => m && m.completed && !m.claimed).length;
         const _dailyReady = (game.state.dailyChallenges || []).filter((c) => c && c.completed && !c.claimed).length;
+        let _achieveReady = 0;
+        if (game.state.achievements && game.state.achievements.unlocked) {
+          const _achKeys = Object.keys(game.state.achievements.unlocked);
+          for (let i = 0; i < _achKeys.length; i++) {
+            if (game.state.achievements.unlocked[_achKeys[i]] && (!game.state.achievements.claimed || !game.state.achievements.claimed[_achKeys[i]])) {
+              _achieveReady++;
+            }
+          }
+        }
+        const _pendingLogin = game.state.pendingLoginReward ? 1 : 0;
+        const _trophyReadyTotal = _dailyReady + _achieveReady + _pendingLogin;
         if (_missionsReady !== _lastMissionsReady) {
           _lastMissionsReady = _missionsReady;
           if (!_domMBadgeTop) _domMBadgeTop = document.getElementById("missions-tab-badge");
@@ -3265,7 +3363,17 @@
         }
         if (!_domHeaderDailyBtn) _domHeaderDailyBtn = document.getElementById("header-daily-btn");
         if (_domHeaderDailyBtn) {
-          _domHeaderDailyBtn.classList.toggle("reward-ready-glow", _dailyReady + _missionsReady > 0);
+          _domHeaderDailyBtn.classList.toggle("reward-ready-glow", _trophyReadyTotal > 0);
+          _domHeaderDailyBtn.classList.toggle("header-daily-ready", _trophyReadyTotal > 0);
+          const _trophyBadge = document.getElementById("header-daily-badge");
+          if (_trophyBadge) {
+            if (_trophyReadyTotal > 0) {
+              _trophyBadge.textContent = String(_trophyReadyTotal);
+              _trophyBadge.style.display = "flex";
+            } else {
+              _trophyBadge.style.display = "none";
+            }
+          }
         }
       }
       drawTimer += cappedDt;
@@ -3338,7 +3446,7 @@
     if (miniBtn) {
       miniBtn.disabled = !isReady;
     }
-    const fmt = typeof window.formatMoney === "function" ? window.formatMoney : ((v) => "$" + Math.round(v));
+    const fmt = (v) => typeof formatMoney2 === "function" ? formatMoney2(v) : typeof window.formatMoney === "function" ? window.formatMoney(v) : "$" + Math.round(v);
     const miniStored = document.getElementById("vault-mini-stored");
     const miniCap = document.getElementById("vault-mini-cap");
     const miniYield = document.getElementById("vault-mini-yield");
@@ -3375,8 +3483,27 @@
     AD_OFFER_COOLDOWN_MS: 7 * 60 * 1e3,
     AD_OFFER_COOLDOWN_SHORT_MS: 2.5 * 60 * 1e3,
     adMobAvailable: false,
-    _currentCallback: null,
+    _activeCallback: null,
+    _activeRewardGranted: false,
     _currentTier: "big",
+    _isAdPrepared: false,
+    _preparingPromise: null,
+    _executeReward: function() {
+      if (AdService._activeRewardGranted) return;
+      AdService._activeRewardGranted = true;
+      console.log("[AdMob] Ad reward successfully granted!");
+      if (typeof AdService._activeCallback === "function") {
+        const cb = AdService._activeCallback;
+        AdService._activeCallback = null;
+        try {
+          cb();
+        } catch (err) {
+          console.error("[AdMob] Error in ad reward callback:", err);
+        }
+      }
+      AdService._markWatched();
+      resetBoostOfferTimer();
+    },
     isInCooldown: function(tier) {
       if (tier === "short") {
         return AdService.lastWatchedAtShort > 0 && Date.now() - AdService.lastWatchedAtShort < AdService.AD_OFFER_COOLDOWN_SHORT_MS;
@@ -3410,19 +3537,24 @@
             requestTrackingAuthorization: true
           });
           AdService.adMobAvailable = true;
-          AdMob.addListener("rewardedVideoAdReward", () => {
-            if (AdService._currentCallback) {
-              AdService._currentCallback();
-              AdService._currentCallback = null;
-            }
-            AdService._markWatched();
-            resetBoostOfferTimer();
-          });
-          AdMob.addListener("rewardedVideoAdDismissed", () => {
+          const onRewardEarned = (rewardItem) => {
+            console.log("[AdMob] onRewardedVideoAdReward event earned:", rewardItem);
+            AdService._executeReward();
+          };
+          const onAdDismissed = () => {
+            console.log("[AdMob] onRewardedVideoAdDismissed event");
             AdService._isShowing = false;
-            AdService._currentCallback = null;
-            AdService.prepareAd();
-          });
+            AdService._isAdPrepared = false;
+            setTimeout(() => {
+              AdService._activeCallback = null;
+              AdService._activeRewardGranted = false;
+              AdService.prepareAd();
+            }, 200);
+          };
+          AdMob.addListener("onRewardedVideoAdReward", onRewardEarned);
+          AdMob.addListener("rewardedVideoAdReward", onRewardEarned);
+          AdMob.addListener("onRewardedVideoAdDismissed", onAdDismissed);
+          AdMob.addListener("rewardedVideoAdDismissed", onAdDismissed);
           await AdService.prepareAd();
         } catch (e) {
           console.error("AdMob init failed", e);
@@ -3444,29 +3576,63 @@
       return false;
     },
     prepareAd: async function() {
-      if (!AdService.adMobAvailable) return;
-      try {
-        await window.Capacitor.Plugins.AdMob.prepareRewardVideoAd({
-          adId: AD_TESTING_MODE ? TEST_REWARDED_AD_UNIT_ID : PROD_REWARDED_AD_UNIT_ID,
-          isTesting: AD_TESTING_MODE
-        });
-      } catch (e) {
-        console.error("Failed to prepare ad", e);
-      }
+      if (!AdService.adMobAvailable) return false;
+      if (AdService._preparingPromise) return AdService._preparingPromise;
+      AdService._preparingPromise = (async () => {
+        const AdMob = window.Capacitor.Plugins.AdMob;
+        try {
+          if (!AD_TESTING_MODE) {
+            try {
+              await AdMob.prepareRewardVideoAd({
+                adId: PROD_REWARDED_AD_UNIT_ID,
+                isTesting: false
+              });
+              AdService._isAdPrepared = true;
+              return true;
+            } catch (prodErr) {
+              console.warn("Production AdMob unit not filled or pending approval, falling back to test ad unit:", prodErr);
+            }
+          }
+          await AdMob.prepareRewardVideoAd({
+            adId: TEST_REWARDED_AD_UNIT_ID,
+            isTesting: true
+          });
+          AdService._isAdPrepared = true;
+          return true;
+        } catch (e) {
+          console.error("Failed to prepare ad (both prod and test):", e);
+          AdService._isAdPrepared = false;
+          return false;
+        } finally {
+          AdService._preparingPromise = null;
+        }
+      })();
+      return AdService._preparingPromise;
     },
     show: async function(callback, tier) {
       if (AdService._isShowing) return;
       AdService._isShowing = true;
+      AdService._activeRewardGranted = false;
+      AdService._activeCallback = callback;
       AdService._currentTier = tier === "short" ? "short" : "big";
       if (AdService.adMobAvailable) {
         try {
-          AdService._currentCallback = callback;
-          await window.Capacitor.Plugins.AdMob.showRewardVideoAd();
+          if (!AdService._isAdPrepared) {
+            await AdService.prepareAd();
+          }
+          const rewardResult = await window.Capacitor.Plugins.AdMob.showRewardVideoAd();
+          console.log("[AdMob] showRewardVideoAd resolved:", rewardResult);
+          if (rewardResult) {
+            AdService._executeReward();
+          }
+          AdService._isShowing = false;
+          AdService._isAdPrepared = false;
+          AdService.prepareAd();
           return;
         } catch (e) {
           console.error("AdMob show failed, falling back to mock:", e);
           AdService._isShowing = false;
-          AdService._currentCallback = null;
+          AdService._isAdPrepared = false;
           AdService.prepareAd();
         }
       }
@@ -3486,9 +3652,10 @@
         AdService._isShowing = false;
         removeOverlay();
         if (grantReward) {
-          AdService._markWatched();
-          resetBoostOfferTimer();
-          if (callback) callback();
+          AdService._executeReward();
+        } else {
+          AdService._activeCallback = null;
+          AdService._activeRewardGranted = false;
         }
       };
       timeoutId = setTimeout(() => complete(true), 15e3);
@@ -3496,7 +3663,7 @@
         const overlay = document.createElement("div");
         overlay.className = "ad-playing-overlay";
         const lang = window.game && window.game.state && window.game.state.language || "en";
-        const tObj = translations[lang] || translations["he"];
+        const tObj = typeof translations !== "undefined" && translations[lang] ? translations[lang] : window.translations && window.translations[lang] || window.translations && window.translations.he || {};
         const titleText = tObj.adTitle || "Watching Sponsored Ad...";
         const subtitleText = tObj.adSubtitle || "Reward unlocks in:";
         const closeText = tObj.adCloseBtn || "Close \u274C (No Reward)";
@@ -3545,7 +3712,7 @@
   function updateAdvDisplay2(budget) {
     if (!DOM_CACHE.advDisplay) return;
     const lang = window.game && game.state && game.state.language || "en";
-    const tObj = window.translations && translations[lang] ? translations[lang] : translations.he || {};
+    const tObj = typeof translations !== "undefined" && translations[lang] ? translations[lang] : window.translations && window.translations[lang] || window.translations && window.translations.he || {};
     const slider = DOM_CACHE.advSlider;
     if (slider) {
       const val = parseInt(slider.value) || 0;
@@ -3578,7 +3745,7 @@
   function updateMuteButton() {
     if (!DOM_CACHE.muteBtn) return;
     const lang = window.gameLanguage || "en";
-    const tObj = translations[lang] || translations.en;
+    const tObj = typeof translations !== "undefined" && translations[lang] ? translations[lang] : window.translations && window.translations[lang] || window.translations && window.translations.he || {};
     const isMuted = window.gameAudio ? window.gameAudio.isMuted : true;
     if (isMuted) {
       DOM_CACHE.muteBtn.innerText = "\u{1F507}";
@@ -3611,7 +3778,7 @@
     const lang = game.state && game.state.language || "en";
     const existing = document.getElementById("contextual-offer-banner");
     if (existing) existing.remove();
-    const tObj = translations[lang] || translations.en;
+    const tObj = typeof translations !== "undefined" && translations[lang] ? translations[lang] : window.translations && window.translations[lang] || window.translations && window.translations.he || {};
     const msg = tObj.boostMilestoneMsg || "\u{1F389} Cash milestone! Activate x2 boost?";
     const banner = document.createElement("div");
     banner.id = "contextual-offer-banner";
@@ -3880,6 +4047,10 @@
       DOM_CACHE.vaultInfoBtn.title = tObj.vaultInfoBtnTitle || "Vault interest info";
       DOM_CACHE.vaultInfoBtn.setAttribute("aria-label", tObj.vaultInfoBtnTitle || "Vault interest info");
     }
+    const fortuneBadge = document.getElementById("fortune-wheel-badge");
+    if (fortuneBadge) {
+      fortuneBadge.innerText = tObj.wheelBadgeFree || "\u05D7\u05D9\u05E0\u05DD";
+    }
     if (DOM_CACHE.fortuneWheelBtn) {
       DOM_CACHE.fortuneWheelBtn.title = tObj.fortuneWheelTitle || "Daily Fortune Wheel";
       DOM_CACHE.fortuneWheelBtn.setAttribute("aria-label", tObj.fortuneWheelTitle || "Daily Fortune Wheel");
@@ -3938,22 +4109,28 @@
     updateElText("reset-confirm-label", tObj.resetConfirmLabel);
     updateElText("reset-btn-text", (tObj.resetGameBtn || "").replace("\u26A0\uFE0F", "").trim());
     updateElText("prestige-modal-title", tObj.prestigeModalTitle);
+    updateElText("prestige-modal-text", tObj.branches && tObj.branches.prestigeDesc ? tObj.branches.prestigeDesc : tObj.prestigeModalText || "Reset progress in this branch to claim Golden Shares.");
     updateElText("prestige-reward-label", tObj.prestigeRewardLabel);
     updateElText("prestige-regular-btn", tObj.prestigeRegularBtn);
-    updateElText("prestige-cancel-btn", tObj.cancelBtn);
+    updateElText("prestige-cancel-btn", tObj.cancelBtn || tObj.prestigeCancelBtn || "Cancel");
     updateElText("analytics-modal-title", tObj.analyticsModalTitle);
+    updateElText("analytics-modal-title-text", tObj.analyticsModalTitle);
+    updateElText("analytics-branch-name-live", tObj.analyticsLiveHeader || "Live Real-Time Data");
     updateElText("analytics-title-general", tObj.analyticsTitleGeneral);
     updateElText("analytics-label-eps", tObj.analyticsLabelEps);
     updateElText("analytics-label-vault", tObj.analyticsLabelVault);
     updateElText("analytics-title-tellers", tObj.analyticsTitleTellers);
+    updateElText("analytics-title-ops", tObj.analyticsOpsFlowTitle || "Operations Chain Balance");
     updateElText("analytics-title-warnings", tObj.analyticsTitleWarnings);
-    updateElText("analytics-close-btn", tObj.close || "Close");
+    updateElText("analytics-close-btn", tObj.analyticsCloseBtn || tObj.close || "Close");
     updateElText("fortune-wheel-title", tObj.fortuneWheelTitle);
+    updateElText("fortune-wheel-title-text", tObj.fortuneWheelTitle);
     updateElText("fortune-wheel-subtitle", tObj.fortuneWheelSubtitle);
-    updateElText("fortune-spin-hint", tObj.fortuneSpinHint);
-    updateElText("fortune-spin-btn", tObj.fortuneSpinBtn);
-    updateElText("fortune-ad-spin-btn", tObj.fortuneAdSpinBtn);
-    updateElText("fortune-close-btn", tObj.fortuneCloseBtn);
+    updateElText("fortune-spin-hint", tObj.fortuneWheelSpinHint || tObj.fortuneSpinHint);
+    updateElText("fortune-spin-btn", tObj.fortuneWheelSpinBtn || tObj.fortuneSpinBtn);
+    updateElText("fortune-ad-spin-text", tObj.fortuneWheelAdSpinBtn || tObj.fortuneAdSpinBtn);
+    updateElText("fortune-hub-text", tObj.fortuneWheelSpinHub || "SPIN");
+    updateElText("fortune-close-btn", tObj.fortuneWheelClose || tObj.fortuneCloseBtn);
     updateElText("discovery-tip-btn", tObj.gotItBtn);
     updateMuteButton();
     rebuildTellersDOM();
@@ -5115,7 +5292,7 @@
                 <span>${translations[lang].activeLabel || "Active"}</span>
             </span>
         ` : "";
-      const profitLbl = lang === "he" ? "\u05E8\u05D5\u05D5\u05D7" : lang === "ru" ? "\u0414\u043E\u0445\u043E\u0434" : lang === "es" ? "Beneficio" : "Income";
+      const profitLbl = translations[lang] && translations[lang].profitLabel ? translations[lang].profitLabel.replace(":", "").trim() : lang === "he" ? "\u05E8\u05D5\u05D5\u05D7" : "Profit";
       const currentProfit = isUnlocked ? reward : d.baseReward;
       const statsBarsHtml = `
             <div class="dept-stat-bar">
@@ -5178,20 +5355,13 @@
       btn.addEventListener("click", (e) => {
         if (btn.classList.contains("disabled") || btn.disabled) return;
         const deptId = parseInt(btn.getAttribute("data-dept-idx"), 10);
-        const d = game.state.departments.find((dept) => dept.id === deptId);
-        if (!d || d.unlocked) return;
-        const cost = game.getDepartmentUnlockCost(d);
-        if (game.state.cash >= cost) {
-          game.state.cash -= cost;
-          d.unlocked = true;
-          if (typeof window.playSound === "function") window.playSound("upgrade");
-          if (typeof window.triggerHaptic === "function") window.triggerHaptic("medium");
+        if (game.unlockDepartment(deptId)) {
+          if (typeof window.hapticTap === "function") window.hapticTap(12);
           if (typeof window.spawnFloatingText === "function") {
             window.spawnFloatingText(e.clientX || window.innerWidth / 2, e.clientY || window.innerHeight / 2, `+${translations[lang].departments.unlockedMsg || "Unlocked!"}`, "gold");
           }
           renderDepartmentsTab();
-          if (typeof window.updateAllDisplays === "function") window.updateAllDisplays();
-          if (typeof window.saveGame === "function") window.saveGame();
+          if (typeof window.draw === "function") window.draw();
         }
       });
     });
@@ -5774,7 +5944,6 @@
                 <div class="mission-action-zone">
                     <button class="claim-achievement-btn" data-achievement-id="${a.id}">
                         ${rootT.claimReward || "Claim!"}
-                        <span class="claim-reward-amount">+${a.rewardShares} ${shareLbl} \u{1FA99}</span>
                     </button>
                 </div>`;
       } else if (isUnlocked && isClaimed) {
@@ -6044,7 +6213,7 @@
               if (statVals.length >= 1) {
                 const capacity = game.getBaseQueueCapacity(game.state.queueUpgradeLevel || 1);
                 const nextCapacity = game.getBaseQueueCapacity((game.state.queueUpgradeLevel || 1) + details.levels);
-                const newStat0 = capacity + ' <span class="arrow">\u2794</span> ' + nextCapacity;
+                const newStat0 = '<span class="val-current">' + capacity + '</span><span class="val-arrow arrow" style="color: #4ade80;">\u2794</span><span class="val-next">' + nextCapacity + "</span>";
                 if (statVals[0].innerHTML !== newStat0) statVals[0].innerHTML = newStat0;
               }
             }
@@ -6322,6 +6491,19 @@
     if (uiEventsInitialized) return;
     uiEventsInitialized = true;
     initFocusTrapObserver();
+    document.querySelectorAll(".modal-overlay").forEach((overlay) => {
+      overlay.addEventListener("click", (e) => {
+        if (e.target === overlay) {
+          if (overlay.id === "fortune-wheel-modal" && window._wheelIsSpinning) return;
+          initSound2();
+          overlay.classList.remove("active");
+          if (overlay.id === "weekly-modal" && window.game && window.game.state) {
+            window.game.state.lastWeeklyReward = Date.now();
+            window.game.saveGame();
+          }
+        }
+      });
+    });
     document.addEventListener("keydown", (e) => {
       if (e.key !== "Escape") return;
       const modals = [
@@ -6331,7 +6513,8 @@
         { id: "login-reward-modal", closeId: "login-reward-collect-btn" },
         { id: "offline-modal", closeId: "offline-claim-btn" },
         { id: "weekly-modal", closeId: "weekly-close-btn" },
-        { id: "analytics-modal", closeId: "analytics-close-btn" }
+        { id: "analytics-modal", closeId: "analytics-close-btn" },
+        { id: "event-modal", closeId: null }
       ];
       for (const { id, closeId } of modals) {
         const el = document.getElementById(id);
@@ -6531,6 +6714,9 @@
         game.setAdvBudget(budget);
         updateAdvDisplay2(budget);
       });
+      DOM_CACHE.advSlider.addEventListener("change", () => {
+        game.saveGame();
+      });
     }
     const tabButtons = document.querySelectorAll(".tab-btn");
     const tabPanes = document.querySelectorAll(".tab-pane");
@@ -6695,17 +6881,15 @@
     if (DOM_CACHE.offlineModalDoubleBtn) {
       DOM_CACHE.offlineModalDoubleBtn.addEventListener("click", () => {
         initSound2();
+        const extra = game && game.offlineEarningsReport && game.offlineEarningsReport > 0 ? game.offlineEarningsReport : 0;
         if (DOM_CACHE.offlineModal) DOM_CACHE.offlineModal.classList.remove("active");
         playAd(() => {
-          if (game.offlineEarningsReport && game.offlineEarningsReport > 0) {
-            const extra = game.offlineEarningsReport;
-            game.state.cash = Math.round((game.state.cash + extra + Number.EPSILON) * 100) / 100;
-            game.state.lifetimeCash = Math.round((game.state.lifetimeCash + extra + Number.EPSILON) * 100) / 100;
+          if (extra > 0) {
+            game.addCash(extra);
             if (window.gameAudio && typeof window.gameAudio.playChaChing === "function") {
               window.gameAudio.playChaChing();
             }
-            const rect = DOM_CACHE.offlineModalDoubleBtn.getBoundingClientRect();
-            spawnFloating("+" + formatMoney(extra), rect.left + rect.width / 2, rect.top, "green", null, true);
+            spawnFloating("+" + formatMoney(extra), window.innerWidth / 2, window.innerHeight / 2 - 40, "green", null, true);
           }
           game.offlineEarningsReport = 0;
           game.saveGame();
@@ -6808,6 +6992,7 @@
     if (DOM_CACHE.vaultEmptyBtn) {
       DOM_CACHE.vaultEmptyBtn.addEventListener("click", () => {
         initSound2();
+        if (typeof hapticTap === "function") hapticTap(15);
         const collected = game.collectVault();
         if (collected > 0) {
           const rectBtn = DOM_CACHE.vaultEmptyBtn.getBoundingClientRect();
@@ -6954,6 +7139,7 @@
   window.openFortuneWheel = openFortuneWheel;
   window.triggerVipVisitBanner = triggerVipVisitBanner;
   window.removeVipVisitBanner = removeVipVisitBanner;
+  window.AdService = AdService;
   window.serveVipVisitor = serveVipVisitor;
   window.renderDailyChallengesSection = renderDailyChallengesSection;
   window.showLoginRewardModal = showLoginRewardModal;

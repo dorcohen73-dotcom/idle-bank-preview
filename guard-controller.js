@@ -51,7 +51,7 @@ class GuardController {
             const fallback = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8];
             return fallback[ti] !== undefined ? fallback[ti] : 0.5;
         };
-        const VAULT_ANCHOR = GAME_CONFIG.GUARD_VAULT_ANCHOR;
+        const VAULT_ANCHOR = (typeof GAME_CONFIG !== "undefined" && GAME_CONFIG.GUARD_VAULT_ANCHOR !== undefined) ? GAME_CONFIG.GUARD_VAULT_ANCHOR : 0.0;
 
         game.state.guards.forEach(g => {
             if (!g.unlocked) return;

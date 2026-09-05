@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="he" dir="rtl" data-version="1.0.140">
+<html lang="he" dir="rtl" data-version="1.0.153">
 
 <head>
     <script>
@@ -20,7 +20,7 @@
     <meta charset="UTF-8">
     <!-- Content Security Policy -->
     <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://worldtimeapi.org; media-src 'self';">
+        content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://worldtimeapi.org https://timeapi.io; media-src 'self';">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>אימפריית הבנקים</title>
 
@@ -89,7 +89,7 @@
 
     <!-- Application Styles — compiled from scss/main.scss (npm run css), which also
          includes what used to be premium_depts.css and premium_managers.css. -->
-    <link rel="stylesheet" href="style.css?v=32becb3e63">
+    <link rel="stylesheet" href="style.css?v=437bb09bc5">
 
     <!-- PWA Manifest -->
     <link rel="manifest" href="manifest.json">
@@ -285,7 +285,7 @@
                     <button class="topbar-action-btn sound-toggle-btn header-daily-btn" id="header-daily-btn" data-tab="daily" title="הישגים"
                         aria-label="הישגים"><span aria-hidden="true">🏆</span></button>
                     <button class="topbar-action-btn sound-toggle-btn fortune-wheel-header-btn" id="fortune-wheel-btn"
-                        title="גלגל המזל היומי" aria-label="גלגל המזל היומי"><span aria-hidden="true">🎡</span></button>
+                        title="גלגל המזל היומי" aria-label="גלגל המזל היומי"><span class="wheel-icon" aria-hidden="true">🎡</span><span class="fortune-wheel-badge" id="fortune-wheel-badge">חינם</span></button>
                     <button class="topbar-action-btn sound-toggle-btn" id="analytics-btn" title="מדדים ואנליטיקה"
                         aria-label="דוח ביצועים ואנליטיקה"><span aria-hidden="true">📊</span></button>
                     <button class="topbar-action-btn sound-toggle-btn" id="lang-btn" title="הגדרות ושפה / Settings & Language"
@@ -613,7 +613,7 @@
             <div class="footer-links">
                 <a href="privacy.html" class="footer-link" id="footer-privacy-link" target="_blank" rel="noopener">מדיניות פרטיות</a> |
                 <a href="terms.html" class="footer-link" id="footer-terms-link" target="_blank" rel="noopener">תנאי שימוש</a> |
-                <span class="footer-version">v1.0.140</span>
+                <span class="footer-version">v1.0.153</span>
             </div>
         </footer>
     </div>
@@ -955,53 +955,111 @@
         </button>
     </nav>
 
-    <!-- Fortune Wheel Modal -->
+    <!-- Fortune Wheel Modal (1-to-1 AAA Luxury Reference) -->
     <div class="modal-overlay" id="fortune-wheel-modal" role="dialog" aria-modal="true"
         aria-labelledby="fortune-wheel-title">
-        <div class="modal-box fortune-wheel-box">
-            <h2 class="modal-title" id="fortune-wheel-title">גלגל המזל היומי</h2>
-            <p class="modal-text fortune-wheel-subtitle" id="fortune-wheel-subtitle">סובב פעם ביום וזכה בפרס!</p>
-            
-            <div class="wheel-separator-line">
-                <span class="diamond">✦</span>
+        <div class="modal-box fortune-wheel-box luxury-fortune-wheel-modal">
+            <!-- Close X Button -->
+            <button class="fortune-wheel-close-x" id="fortune-close-x-top" aria-label="סגור">✕</button>
+
+            <!-- Floating Gold Confetti / Dust Particles -->
+            <div class="fortune-confetti-layer" aria-hidden="true">
+                <span class="f-dust d-1">✨</span>
+                <span class="f-dust d-2">🌟</span>
+                <span class="f-dust d-3">✨</span>
+                <span class="f-dust d-4">✦</span>
+                <span class="f-dust d-5">✨</span>
+                <span class="f-dust d-6">🌟</span>
             </div>
 
-            <div class="fortune-wheel-container" style="position: relative; width: 100%; display: flex; justify-content: center; margin: 1.5rem auto;">
-                <div class="fortune-wheel-graphic" id="fortune-wheel-graphic" aria-hidden="true" style="margin: 0;">
-                    <div class="wheel-segments" id="wheel-segments-container">
+            <!-- Top Header Hero -->
+            <div class="modal-header-hero">
+                <!-- Golden Crest with Laurels -->
+                <div class="fortune-crest-badge" aria-hidden="true">
+                    <span class="crest-laurel crest-laurel-left">🌿</span>
+                    <div class="fortune-shield-box">
+                        <span class="fortune-hero-glyph">🎡</span>
+                    </div>
+                    <span class="crest-laurel crest-laurel-right">🌿</span>
+                </div>
+
+                <div class="fortune-title-group">
+                    <h2 class="modal-title luxury-modal-title" id="fortune-wheel-title">
+                        <span id="fortune-wheel-title-text">גלגל המזל היומי</span>
+                    </h2>
+                    <div class="fortune-live-status-pill" id="fortune-status-pill">
+                        <span class="live-pulse-dot"></span>
+                        <span id="fortune-wheel-subtitle">סובב פעם ביום וזכה בפרסים ענקיים!</span>
                     </div>
                 </div>
-                <div class="wheel-pointer" aria-hidden="true">
-                    <svg viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
-                        <defs>
-                            <linearGradient id="pointerGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" stop-color="#fef08a" />
-                                <stop offset="50%" stop-color="#eab308" />
-                                <stop offset="100%" stop-color="#854d0e" />
-                            </linearGradient>
-                            <filter id="glow">
-                                <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
-                                <feMerge>
-                                    <feMergeNode in="coloredBlur"/>
-                                    <feMergeNode in="SourceGraphic"/>
-                                </feMerge>
-                            </filter>
-                        </defs>
-                        <polygon points="10,10 90,10 50,110" fill="url(#pointerGrad)" stroke="#fef08a" stroke-width="4" stroke-linejoin="round"/>
-                        <polygon points="50,20 70,25 50,80 30,25" fill="#ffffff" filter="url(#glow)"/>
-                        <circle cx="50" cy="15" r="5" fill="#ffffff" filter="url(#glow)"/>
-                    </svg>
+            </div>
+
+            <!-- Wheel Stage -->
+            <div class="fortune-wheel-stage">
+                <div class="wheel-outer-chassis">
+                    <!-- 16 Glowing Bulbs -->
+                    <div class="wheel-lights-ring" aria-hidden="true">
+                        <span class="bulb b-1"></span><span class="bulb b-2"></span>
+                        <span class="bulb b-3"></span><span class="bulb b-4"></span>
+                        <span class="bulb b-5"></span><span class="bulb b-6"></span>
+                        <span class="bulb b-7"></span><span class="bulb b-8"></span>
+                        <span class="bulb b-9"></span><span class="bulb b-10"></span>
+                        <span class="bulb b-11"></span><span class="bulb b-12"></span>
+                        <span class="bulb b-13"></span><span class="bulb b-14"></span>
+                        <span class="bulb b-15"></span><span class="bulb b-16"></span>
+                    </div>
+                    
+                    <div class="fortune-wheel-graphic" id="fortune-wheel-graphic" aria-hidden="true">
+                        <div class="wheel-segments" id="wheel-segments-container">
+                            <!-- Wedges generated dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- 3D Center Golden Hub Button with 'SPIN' -->
+                    <button class="wheel-center-hub" id="fortune-hub-spin-btn" aria-label="סובב">
+                        <span class="hub-spin-label" id="fortune-hub-text">סובב</span>
+                    </button>
+
+                    <!-- 3D Golden Pointer Needle with Diamond -->
+                    <div class="wheel-pointer-needle" aria-hidden="true">
+                        <svg viewBox="0 0 60 70" xmlns="http://www.w3.org/2000/svg" class="pointer-svg">
+                            <defs>
+                                <linearGradient id="needleGoldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#fff8db" />
+                                    <stop offset="45%" stop-color="#f59e0b" />
+                                    <stop offset="100%" stop-color="#78350f" />
+                                </linearGradient>
+                                <filter id="needleGlowFilter" x="-30%" y="-30%" width="160%" height="160%">
+                                    <feDropShadow dx="0" dy="4" stdDeviation="3" flood-color="#000000" flood-opacity="0.9"/>
+                                    <feDropShadow dx="0" dy="0" stdDeviation="4" flood-color="#f59e0b" flood-opacity="0.7"/>
+                                </filter>
+                            </defs>
+                            <path d="M 12 14 L 48 14 L 30 64 Z" fill="url(#needleGoldGrad)" stroke="#fff8db" stroke-width="2" filter="url(#needleGlowFilter)" stroke-linejoin="round"/>
+                            <polygon points="30,4 42,14 30,24 18,14" fill="#ffffff" stroke="#e2e8f0" stroke-width="1"/>
+                            <polygon points="30,7 38,14 30,21 22,14" fill="#fef08a"/>
+                            <circle cx="30" cy="14" r="3" fill="#ffffff"/>
+                        </svg>
+                    </div>
                 </div>
             </div>
 
-            <p class="fortune-spin-hint" id="fortune-spin-hint">👇 לחץ על הכפתור למטה כדי לסובב את הגלגל</p>
+            <!-- Win Result Notification Card -->
+            <div id="fortune-result" class="fortune-result-card" style="display: none;"></div>
 
-            <div id="fortune-result" class="fortune-result"></div>
-            <button id="fortune-ad-spin-btn" class="fortune-ad-spin-btn">📺 סיבוב נוסף — צפה בפרסומת</button>
-            
-            <div id="fortune-cooldown" class="fortune-cooldown"></div>
+            <!-- Controls & Action Section -->
+            <div class="fortune-controls-wrap">
+                <!-- Free Spin Button -->
+                <button class="luxury-fortune-spin-btn" id="fortune-spin-btn">🎯 סובב עכשיו בחינם!</button>
+                
+                <!-- Ad Spin Button (When in cooldown) -->
+                <button id="fortune-ad-spin-btn" class="luxury-fortune-ad-btn" style="display: none;">
+                    <span id="fortune-ad-spin-text">📺 סיבוב נוסף — צפה בפרסומת</span>
+                </button>
+                
+                <!-- Cooldown Status Pill -->
+                <div id="fortune-cooldown" class="fortune-cooldown-pill" style="display: none;"></div>
+            </div>
 
-            <button class="modal-close-btn fortune-spin-btn" id="fortune-spin-btn">סובב!</button>
             <button class="fortune-close-btn-styled" id="fortune-close-btn">✕ סגור וחזור למשחק</button>
         </div>
     </div>
@@ -1122,7 +1180,7 @@
     <script src="audio.js?v=20260716_4" defer></script>
     <script src="notification-queue.js?v=20260716_4" defer></script>
     <!-- Discovery Tip Panel -->
-    <div id="discovery-tip-panel" class="discovery-tip-panel" role="status" aria-live="polite">
+    <div id="discovery-tip-panel" class="discovery-tip-panel" style="display:none;" role="status" aria-live="polite">
         <div class="discovery-tip-inner">
             <span class="discovery-tip-icon" id="discovery-tip-icon">💡</span>
             <div class="discovery-tip-content">
@@ -1144,7 +1202,7 @@
     </div>
 
     <script src="config.js?v=20260724_3" defer></script>
-    <script src="locales.js?v=32becb3e63" defer></script>
+    <script src="locales.js?v=437bb09bc5" defer></script>
     <script src="economy-manager.js?v=20260724_1" defer></script>
     <script src="save-manager.js?v=20260724_2" defer></script>
     <script src="mission-controller.js?v=20260718_1" defer></script>
@@ -1155,7 +1213,7 @@
     <script src="shop-controller.js?v=20260718_5" defer></script>
     <script src="performance-manager.js?v=2" defer></script>
     <script src="game.js?v=20260718_5" defer></script>
-    <script src="app.bundle.js?v=32becb3e63" defer></script>
+    <script src="app.bundle.js?v=437bb09bc5" defer></script>
     
 </body>
 

@@ -36,7 +36,7 @@ class ShopController {
             entity.level++;
             game.state.stats[statsKey]++;
             game.missionsDirty = true;
-            window.gameAudio.playClick();
+            if (window.gameAudio && typeof window.gameAudio.playClick === "function") window.gameAudio.playClick();
             if (type === 'teller') {
                 game.recalculateEps();
             } else if (type === 'vault' && game.economyManager) {
@@ -72,7 +72,7 @@ class ShopController {
                 entity.level += details.levels;
                 game.state.stats[statsKey] += details.levels;
                 game.missionsDirty = true;
-                window.gameAudio.playClick();
+                if (window.gameAudio && typeof window.gameAudio.playClick === "function") window.gameAudio.playClick();
                 if (type === 'teller') {
                     game.recalculateEps();
                 } else if (type === 'vault' && game.economyManager) {
@@ -100,7 +100,7 @@ class ShopController {
             teller.unlocked = true;
             game.missionsDirty = true;
             teller.level = 1;
-            window.gameAudio.playUnlock();
+            if (window.gameAudio && typeof window.gameAudio.playUnlock === "function") window.gameAudio.playUnlock();
             game.recalculateEps();
             game.saveGame();
             return true;
@@ -123,7 +123,7 @@ class ShopController {
             guard.unlocked = true;
             game.missionsDirty = true;
             guard.level = 1;
-            window.gameAudio.playUnlock();
+            if (window.gameAudio && typeof window.gameAudio.playUnlock === "function") window.gameAudio.playUnlock();
             game.saveGame();
             return true;
         }
@@ -144,7 +144,7 @@ class ShopController {
         if (game.spendCash(cost)) {
             game.state.queueUpgradeLevel = level + 1;
             game.missionsDirty = true;
-            window.gameAudio.playClick();
+            if (window.gameAudio && typeof window.gameAudio.playClick === "function") window.gameAudio.playClick();
             game.saveGame();
             return true;
         }
@@ -176,7 +176,7 @@ class ShopController {
             if (game.spendCash(details.cost)) {
                 game.state.queueUpgradeLevel += details.levels;
                 game.missionsDirty = true;
-                window.gameAudio.playClick();
+                if (window.gameAudio && typeof window.gameAudio.playClick === "function") window.gameAudio.playClick();
                 game.saveGame();
                 return true;
             }
@@ -207,7 +207,7 @@ class ShopController {
                 game.state.managerUpgrades[type] = { level: 1, skill: null };
             }
             game.missionsDirty = true;
-            window.gameAudio.playUnlock();
+            if (window.gameAudio && typeof window.gameAudio.playUnlock === "function") window.gameAudio.playUnlock();
             game.recalculateEps();
             game.saveGame();
             return true;
@@ -223,7 +223,7 @@ class ShopController {
         if (game.spendCash(game.getDepartmentUnlockCost(dept))) {
             dept.unlocked = true;
             game.missionsDirty = true;
-            window.gameAudio.playUnlock();
+            if (window.gameAudio && typeof window.gameAudio.playUnlock === "function") window.gameAudio.playUnlock();
             game.recalculateEps();
             game.saveGame();
             return true;
@@ -260,7 +260,7 @@ class ShopController {
                     game.economyManager._cachedTellerCap = null;
                 }
             }
-            window.gameAudio.playUnlock();
+            if (window.gameAudio && typeof window.gameAudio.playUnlock === "function") window.gameAudio.playUnlock();
             game.recalculateEps();
             game.saveGame();
             return true;
@@ -296,7 +296,7 @@ class ShopController {
         if (game.spendCash(cost)) {
             mgr.level++;
             game.missionsDirty = true;
-            window.gameAudio.playUnlock();
+            if (window.gameAudio && typeof window.gameAudio.playUnlock === "function") window.gameAudio.playUnlock();
             game.recalculateEps();
             game.saveGame();
             return true;
@@ -328,7 +328,7 @@ class ShopController {
         if (details.canAfford && details.levels > 0 && game.spendCash(details.cost)) {
             mgr.level += details.levels;
             game.missionsDirty = true;
-            window.gameAudio.playUnlock();
+            if (window.gameAudio && typeof window.gameAudio.playUnlock === "function") window.gameAudio.playUnlock();
             game.recalculateEps();
             game.saveGame();
             return true;
@@ -347,7 +347,7 @@ class ShopController {
         } else {
             mgr.skill = skill;
         }
-        window.gameAudio.playClick();
+        if (window.gameAudio && typeof window.gameAudio.playClick === "function") window.gameAudio.playClick();
         game.recalculateEps();
         game.saveGame();
         return true;
@@ -362,7 +362,7 @@ class ShopController {
         const cost = 5000;
         if (free || game.spendCash(cost)) {
             mgr.skill = null;
-            window.gameAudio.playClick();
+            if (window.gameAudio && typeof window.gameAudio.playClick === "function") window.gameAudio.playClick();
             game.recalculateEps();
             game.saveGame();
             return true;
@@ -376,7 +376,7 @@ class ShopController {
         const maxSeconds = 8 * 3600;
         game.state.boost2xTimeLeft = Math.min(maxSeconds, (game.state.boost2xTimeLeft || 0) + secondsToAdd);
         if (game.economyManager) game.economyManager.cachedTotalMult = null;
-        window.gameAudio.playUnlock();
+        if (window.gameAudio && typeof window.gameAudio.playUnlock === "function") window.gameAudio.playUnlock();
         game.saveGame();
         return true;
     }
